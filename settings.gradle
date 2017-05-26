@@ -1,2 +1,2 @@
-include ':app'
+include ':app', ':movesystemlibs'
 include ':openCVLibrary2411'

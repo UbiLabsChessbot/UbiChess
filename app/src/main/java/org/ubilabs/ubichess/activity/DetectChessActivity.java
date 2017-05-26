@@ -56,6 +56,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import me.michaeljiang.movesystemlibs.movesystem.MoveSystem;
+import me.michaeljiang.movesystemlibs.movesystem.setting.ProjectSetting;
+
 import static org.opencv.imgproc.Imgproc.MORPH_CLOSE;
 import static org.opencv.imgproc.Imgproc.MORPH_OPEN;
 import static org.opencv.imgproc.Imgproc.MORPH_RECT;
@@ -97,6 +100,8 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
 
     private Chessboard oldChessboard[][];
     private String playerStep;
+
+    private MoveSystem moveSystem;
 
     static {
         if (!OpenCVLoader.initDebug()) {
@@ -211,6 +216,46 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         } else {
             initCamera();
         }
+
+        moveSystem = new MoveSystem(this);
+        Log.e(TAG, "Init MoveSystem Start!");
+        moveSystem.initSystem();
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+
+                try {
+                    sleep(10000);
+                    moveSystem.disconnectBluetooth();
+                    sleep(2000);
+                    moveSystem.connectMqtt();
+                    sleep(2000);
+                    moveSystem.connectBluetooth();
+                    sleep(2000);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                while (true) {
+                    try {
+                        if (moveSystem.isConnect()) {
+                            Log.e("ThreadMessage", "IsConnect");
+
+                            sleep(5000);
+                            Log.e("ThreadMessage", "StartTest");
+                            moveSystem.move(ProjectSetting.INTERNATIONAL_CHESS, "A1", true);
+                            moveSystem.move(ProjectSetting.INTERNATIONAL_CHESS, "A6", false);
+//                            moveSystem.moveA2B(ProjectSetting.INTERNATIONAL_CHESS, "A1", ProjectSetting.INTERNATIONAL_CHESS, "A8");
+                            break;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                Log.d("ThreadMessage", "FunctionFinish");
+            }
+        }.start();
     }
 
     private void initCamera() {

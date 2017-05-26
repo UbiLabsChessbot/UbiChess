@@ -5,6 +5,7 @@ public class Chessboard {
     public double x;
     public double y;
     private Chess chess;
+
     public final static char[][] INITCHESSBOARD = {
             {'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
             {'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
