@@ -81,25 +81,20 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
     private Mat zeroMatOfPoint;
     private MatOfPoint3f zeroMatOfPoint3f;
     private Mat zeroGray;
-    private Mat zeroChessesMat;
+    private Mat zeroChessMat;
     private Mat chessMaskMat;
     private Mat morphologyExElement;
 
     //    private SeekBar hEdit;
 //    private SeekBar lEdit;
-    private int generateCnt = 0;
+//    private int generateCnt = 0;
 
-    private Button initButton;
-    private int initCnt = 0;
-    private Button resetChessButton;
-    private int resetChessCnt = 0;
-    private Button playChessButton;
-    private int playChessCnt = 0;
     private int processType;
     private boolean doSignal;
+    private int labStep;
+    private int playStep;
 
     private Chessboard oldChessboard[][];
-    private String playerStep;
 
     private MoveSystem moveSystem;
 
@@ -161,50 +156,68 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
 //        });
 //        lEdit.setProgress(46);
 
-        final List<String> initProcess = new ArrayList<>();
-        initProcess.addAll(Arrays.asList("未选择", "识别棋盘"));
-
-        final List<String> resetChessProcess = new ArrayList<>();
-        resetChessProcess.addAll(Arrays.asList("未选择", "识别棋子", "码棋"));
-
-        final List<String> playChessProcess = new ArrayList<>();
-        playChessProcess.addAll(Arrays.asList("未选择", "识别棋子", "等待棋手", "识别棋子", "识别玩家走法", "给出机械臂走法"));
-
-        initButton = (Button) findViewById(R.id.initButton);
-        initButton.setOnClickListener(new View.OnClickListener() {
+        labStep = 0;
+        Button labButton = (Button) findViewById(R.id.labButton);
+        labButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                labStep = (labStep + 1) % 2;
                 processType = 0;
-                initCnt = (initCnt + 1) % initProcess.size();
-                initButton.setText(initProcess.get(initCnt));
                 doSignal = true;
             }
         });
-        initButton.setText(initProcess.get(0));
 
-        resetChessButton = (Button) findViewById(R.id.resetChessButton);
-        resetChessButton.setOnClickListener(new View.OnClickListener() {
+        Button resetHardwareButton = (Button) findViewById(R.id.resetHardwareButton);
+        resetHardwareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 processType = 1;
-                resetChessCnt = (resetChessCnt + 1) % resetChessProcess.size();
-                resetChessButton.setText(resetChessProcess.get(resetChessCnt));
                 doSignal = true;
             }
         });
-        resetChessButton.setText(resetChessProcess.get(0));
 
-        playChessButton = (Button) findViewById(R.id.playChessButton);
-        playChessButton.setOnClickListener(new View.OnClickListener() {
+        Button initButton = (Button) findViewById(R.id.initButton);
+        initButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 processType = 2;
-                playChessCnt = (playChessCnt + 1) % playChessProcess.size();
-                playChessButton.setText(playChessProcess.get(playChessCnt));
                 doSignal = true;
             }
         });
-        playChessButton.setText(playChessProcess.get(0));
+
+        Button move2ZeroButton = (Button) findViewById(R.id.move2ZeroButton);
+        move2ZeroButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (moveSystem.isConnect()) {
+                    moveSystem.move2Zero();
+                }
+            }
+        });
+
+        Button resetChessButton = (Button) findViewById(R.id.resetChessButton);
+        resetChessButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                processType = 3;
+                doSignal = true;
+            }
+        });
+
+        playStep = -1;
+        final String[] stepList = {"玩家走", "机械臂走"};
+
+        final Button playChessButton = (Button) findViewById(R.id.playChessButton);
+        playChessButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playStep = (playStep + 1) % stepList.length;
+                playChessButton.setText(stepList[playStep]);
+                processType = 4;
+                doSignal = true;
+            }
+        });
+
 
         processType = -1;
         doSignal = false;
@@ -220,42 +233,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         moveSystem = new MoveSystem(this);
         Log.e(TAG, "Init MoveSystem Start!");
         moveSystem.initSystem();
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
-
-                try {
-                    sleep(10000);
-                    moveSystem.disconnectBluetooth();
-                    sleep(2000);
-                    moveSystem.connectMqtt();
-                    sleep(2000);
-                    moveSystem.connectBluetooth();
-                    sleep(2000);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                while (true) {
-                    try {
-                        if (moveSystem.isConnect()) {
-                            Log.e("ThreadMessage", "IsConnect");
-
-                            sleep(5000);
-                            Log.e("ThreadMessage", "StartTest");
-                            moveSystem.move(ProjectSetting.INTERNATIONAL_CHESS, "A1", true);
-                            moveSystem.move(ProjectSetting.INTERNATIONAL_CHESS, "A6", false);
-//                            moveSystem.moveA2B(ProjectSetting.INTERNATIONAL_CHESS, "A1", ProjectSetting.INTERNATIONAL_CHESS, "A8");
-                            break;
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                Log.d("ThreadMessage", "FunctionFinish");
-            }
-        }.start();
+        moveSystem.connect();
     }
 
     private void initCamera() {
@@ -310,7 +288,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         zeroMatOfPoint = new MatOfPoint();
         zeroMatOfPoint3f = new MatOfPoint3f();
         zeroGray = new Mat(imgSize, CvType.CV_8U, new Scalar(0));
-        zeroChessesMat = new Mat(chessesSize, CvType.CV_8UC4, new Scalar(0));
+        zeroChessMat = new Mat(chessesSize, CvType.CV_8UC4, new Scalar(0));
         morphologyExElement = Imgproc.getStructuringElement(MORPH_RECT, new Size(5, 5));
 
         chessMaskMat = new Mat(ChessRadius * 2, ChessRadius * 2, CvType.CV_8U, new Scalar(0));
@@ -324,7 +302,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
     private File mat2PngFile(Mat mat) {
         Bitmap bmp = Bitmap.createBitmap(mat.width(), mat.height(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(mat, bmp);
-        Log.e(TAG, "Transform: finish! " + generateCnt);
+        Log.e(TAG, "Transform: finish! ");
 
         File file = null;
         FileOutputStream fos;
@@ -347,96 +325,73 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
 
     @Override
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-        /* Lab Test
-        Mat ret = inputFrame.rgba();
-        if (doSignal) {
-            switch (initCnt) {
-                case 0:
-                    ret = inputFrame.rgba();
-                    break;
-                case 1:
-                    ret = lab(inputFrame);
-                    break;
-                default:
-                    break;
-            }
-        }
-*/
 
         /* Process*/
         Mat ret = inputFrame.rgba();
         if (doSignal) {
             switch (processType) {
-                case 0://初始化
-                    switch (initCnt) {
-                        case 0://变量初始化
-                            ChessUtils.chesses = new Chess[32];
-                            ChessUtils.chessboard = new Chessboard[8][8];
-                            ChessUtils.chessKeypoints = new Point[4];
-                            doSignal = false;
+                //实验性方法
+                case 0:
+                    switch (labStep) {
+                        case 0:
                             break;
-                        case 1://识别棋盘
-                            detectChessBoard(inputFrame);
-                            if (ChessUtils.chessboard[7][7] != null && ChessUtils.chessKeypoints[3] != null) {
-                                doSignal = false;
-                            }
-                            break;
-                        default:
-                            doSignal = false;
+                        case 1:
+                            ret = lab(inputFrame);
                             break;
                     }
                     break;
-                case 1://码棋
-                    switch (resetChessCnt) {
-                        case 0:
-                            doSignal = false;
-                            break;
-                        case 1:
-                            if (detectChessMen(inputFrame)) {
-                                doSignal = false;
-                            }
-                            break;
-                        case 2://码棋
-                            clearStartingPoint();
-                            //第二遍把中间的棋子归位
-                            clearStartingPoint();
-                            doSignal = false;
-                            break;
-                        default:
-                            doSignal = false;
-                            break;
+                //硬件归零
+                case 1:
+                    if (moveSystem.isConnect()) {
+                        moveSystem.reset();
+                        doSignal = false;
                     }
                     break;
-                case 2://下棋
-                    switch (playChessCnt) {
+                //初始化
+                case 2:
+                    //变量初始化
+                    ChessUtils.chess = new Chess[32];
+                    ChessUtils.chessboard = new Chessboard[8][8];
+                    ChessUtils.chessboardKeyPoints = new Point[4];
+                    //识别棋盘
+                    detectChessBoard(inputFrame);
+                    detectChessBoardBowl(inputFrame);
+                    if (ChessUtils.chessboard[7][7] != null && ChessUtils.chessboardKeyPoints[3] != null && ChessUtils.chessboardBowl[7][3] != null && ChessUtils.chessboardBowlKeyPoints[3] != null) {
+                        doSignal = false;
+                    }
+                    break;
+                //码棋
+                case 3:
+                    if (detectChessMen(inputFrame)) {
+                        //码棋
+                        clearStartingPoint();
+                        //第二遍把中间的棋子归位
+                        clearStartingPoint();
+                        moveSystem.move2Zero();
+                        doSignal = false;
+                    }
+                    break;
+                //下棋
+                case 4:
+                    switch (playStep) {
+                        //保存旧棋盘状态
                         case 0:
-                            doSignal = false;
+                            if (detectChessMen(inputFrame)) {
+                                oldChessboard = saveCurrentChessBoard();
+                                doSignal = false;
+                            }
                             break;
+                        //识别棋子
                         case 1:
                             if (detectChessMen(inputFrame)) {
+                                //识别玩家走法
+                                String playerStep = detectChessStep(oldChessboard);
+                                Log.e(TAG, "Player Step: " + playerStep);
+                                //给出机械臂走法
+                                String robotStep = requireChessStep(playerStep);
+                                Log.e(TAG, "Robot Step: " + robotStep);
                                 doSignal = false;
                             }
-                            break;
-                        case 2://保存旧棋盘状态
-                            oldChessboard = saveCurrentChessBoard();
-                            doSignal = false;
-                            break;
-                        case 3://识别棋子
-                            if (detectChessMen(inputFrame)) {
-                                doSignal = false;
-                            }
-                            break;
-                        case 4://识别玩家走法
-                            playerStep = detectChessStep(oldChessboard);
-                            Log.e(TAG, "Player Step: " + playerStep);
-                            doSignal = false;
-                            break;
-                        case 5://给出机械臂走法
-                            String robotStep = requireChessStep(playerStep);
-                            Log.e(TAG, "Robot Step: " + robotStep);
-                            doSignal = false;
-                            break;
-                        default:
                             break;
                     }
                     break;
@@ -453,8 +408,16 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                 }
             }
         }
-        for (int cnt = 0; cnt < 32 && ChessUtils.chesses[cnt] != null; cnt++) {
-            double[] position = ChessUtils.chesses[cnt].getAbsolutePosition();
+        if (ChessUtils.chessboardBowl[7][3] != null) {
+            for (int row = 0; row < 8; row++) {
+                for (int col = 0; col < 4; col++) {
+                    Point point = new Point(ChessUtils.chessboardBowl[row][col].x, ChessUtils.chessboardBowl[row][col].y);
+                    Core.line(ret, point, point, new Scalar(255), 10);
+                }
+            }
+        }
+        for (int cnt = 0; cnt < 32 && ChessUtils.chess[cnt] != null; cnt++) {
+            double[] position = ChessUtils.chess[cnt].getAbsolutePosition();
             Point point = new Point(position[0], position[1]);
             Core.line(ret, point, point, new Scalar(0, 255, 0), 10);
         }
@@ -541,9 +504,9 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         Log.d(TAG, "Circle Numbers: " + circles.size());
 
         Mat chessImg = tmpMat2;
-        zeroChessesMat.copyTo(chessImg);
+        zeroChessMat.copyTo(chessImg);
 
-        ChessUtils.chesses = new Chess[32];
+        ChessUtils.chess = new Chess[32];
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 ChessUtils.chessboard[row][col].setChess(null);
@@ -561,19 +524,29 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                 subChess.copyTo(subMask, chessMaskMat);
 
                 Chess chess = new Chess();
-                double lengthX = ChessUtils.chessKeypoints[1].x - ChessUtils.chessKeypoints[0].x;
-                double lengthY = ChessUtils.chessKeypoints[3].y - ChessUtils.chessKeypoints[0].y;
-                int row = (int) ((y - ChessUtils.chessKeypoints[0].y) * 1.0 / lengthY * 8);
-                int col = (int) ((x - ChessUtils.chessKeypoints[0].x) * 1.0 / lengthX * 8);
-                if (row >= 0 && row < 8 && col >= 0 && col < 8 && ChessUtils.chessboard[7][7] != null) {
+                double chessboardLengthX = ChessUtils.chessboardKeyPoints[1].x - ChessUtils.chessboardKeyPoints[0].x;
+                double chessboardLengthY = ChessUtils.chessboardKeyPoints[3].y - ChessUtils.chessboardKeyPoints[0].y;
+                int chessboardRow = (int) ((y - ChessUtils.chessboardKeyPoints[0].y) * 1.0 / chessboardLengthY * 8);
+                int chessboardCol = (int) ((x - ChessUtils.chessboardKeyPoints[0].x) * 1.0 / chessboardLengthX * 8);
+
+                double chessboardBowlLengthX = ChessUtils.chessboardBowlKeyPoints[1].x - ChessUtils.chessboardBowlKeyPoints[0].x;
+                double chessboardBowlLengthY = ChessUtils.chessboardBowlKeyPoints[3].y - ChessUtils.chessboardBowlKeyPoints[0].y;
+                int chessboardBowlRow = (int) ((y - ChessUtils.chessboardBowlKeyPoints[0].y) * 1.0 / chessboardBowlLengthY * 8);
+                int chessboardBowlCol = (int) ((x - ChessUtils.chessboardBowlKeyPoints[0].x) * 1.0 / chessboardBowlLengthX * 4);
+
+                if (chessboardRow >= 0 && chessboardRow < 8 && chessboardCol >= 0 && chessboardCol < 8) {
                     chess.setAlive(true);
-                    chess.setLogicPosition(row, col);
-                    ChessUtils.chessboard[row][col].setChess(chess);
+                    chess.setLogicPosition(chessboardRow, chessboardCol);
+                    ChessUtils.chessboard[chessboardRow][chessboardCol].setChess(chess);
+                } else if (chessboardBowlRow >= 0 && chessboardBowlRow < 8 && chessboardBowlCol >= 0 && chessboardBowlCol < 4) {
+                    chess.setAlive(false);
+                    chess.setLogicPosition(chessboardBowlRow, chessboardBowlCol);
+                    ChessUtils.chessboardBowl[chessboardBowlRow][chessboardBowlCol].setChess(chess);
                 } else {
                     chess.setAlive(false);
                     chess.setAbsolutePosition(x, y);
                 }
-                ChessUtils.chesses[cnt] = chess;
+                ChessUtils.chess[cnt] = chess;
             }
             File imgFile = mat2PngFile(chessImg);
             RequestChessType requestChessType = new RequestChessType();
@@ -583,7 +556,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                 JSONObject jsonObject = new JSONObject(ret);
                 String chessType = jsonObject.getString("message");
                 for (int i = 0; i < chessType.length(); i++) {
-                    ChessUtils.chesses[i].setChessType(chessType.charAt(i));
+                    ChessUtils.chess[i].setChessType(chessType.charAt(i));
                 }
                 printChessState(ChessUtils.chessboard);
                 return autoCheckChessType(chessType, imgFile);
@@ -627,7 +600,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         Imgproc.drawContours(rgbaImg, labelContours, -1, new Scalar(0, 255, 0));
 
         ChessUtils.chessboard = new Chessboard[8][8];
-        ChessUtils.chessKeypoints = new Point[4];
+        ChessUtils.chessboardKeyPoints = new Point[4];
         if (labelContours.size() != 0) {
             zeroMatOfPoint2f.copyTo(tmpMatOfPoint2f);
             MatOfPoint2f labelMat = tmpMatOfPoint2f;
@@ -657,9 +630,9 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
 
             //update the chessKeyPoints
             for (int i = tl, cnt = 0; cnt < 4; cnt++, i = (i + 1) % 4) {
-                ChessUtils.chessKeypoints[cnt] = chessKeyPoints[i];
+                ChessUtils.chessboardKeyPoints[cnt] = chessKeyPoints[i];
             }
-            chessKeyPoints = ChessUtils.chessKeypoints;
+            chessKeyPoints = ChessUtils.chessboardKeyPoints;
 
             zeroMatOfPoint.copyTo(tmpMatOfPoint);
             MatOfPoint polyMat = tmpMatOfPoint;
@@ -706,6 +679,118 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         }
     }
 
+    private void detectChessBoardBowl(CvCameraViewFrame inputFrame) {
+        Mat rgbaImg = inputRgbaImg;
+        inputFrame.rgba().copyTo(rgbaImg);
+
+        zeroMat.copyTo(tmpMat);
+        Mat rgbImg = tmpMat;
+        Imgproc.cvtColor(rgbaImg, rgbImg, Imgproc.COLOR_RGBA2RGB);
+        Mat hsvImg = tmpMat;
+        Imgproc.cvtColor(rgbImg, hsvImg, Imgproc.COLOR_RGB2HSV);
+
+        zeroMat.copyTo(tmpMat2);
+        zeroMat.copyTo(tmpMat3);
+        zeroMat.copyTo(tmpMat4);
+        Mat hsvSplit1 = tmpMat2;
+        Mat hsvSplit2 = tmpMat3;
+        Mat hsvSplit3 = tmpMat4;
+        List<Mat> hsvSplits = new ArrayList<>(Arrays.asList(hsvSplit1, hsvSplit2, hsvSplit3));
+
+        Core.split(hsvImg, hsvSplits);
+        Imgproc.equalizeHist(hsvSplits.get(2), hsvSplits.get(2));
+        Core.merge(hsvSplits, hsvImg);
+
+        Mat labelImg = tmpMat;
+        Core.inRange(hsvImg, new Scalar(160, 110, 50), new Scalar(180, 255, 255), labelImg);
+        Imgproc.morphologyEx(labelImg, labelImg, MORPH_OPEN, morphologyExElement);
+        Imgproc.morphologyEx(labelImg, labelImg, MORPH_CLOSE, morphologyExElement);
+
+        List<MatOfPoint> labelContours = new ArrayList<>();
+        Mat hierarchy = tmpMat2;
+        Imgproc.findContours(labelImg, labelContours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+        Imgproc.drawContours(rgbaImg, labelContours, -1, new Scalar(0, 255, 0));
+
+        ChessUtils.chessboardBowl = new Chessboard[8][4];
+        ChessUtils.chessboardBowlKeyPoints = new Point[4];
+        if (labelContours.size() != 0) {
+            zeroMatOfPoint2f.copyTo(tmpMatOfPoint2f);
+            MatOfPoint2f labelMat = tmpMatOfPoint2f;
+
+            List<Point> labelPoints = new ArrayList<>();
+            for (MatOfPoint aMatOfPoint : labelContours) {
+                labelPoints.addAll(aMatOfPoint.toList());
+                aMatOfPoint.release();
+            }
+            labelMat.fromList(labelPoints);
+            RotatedRect chessboardImg = Imgproc.minAreaRect(labelMat);
+
+            //get the chessKeyPoints
+            Point[] chessboardBowlKeyPoints = new Point[4];
+            chessboardImg.points(chessboardBowlKeyPoints);
+
+            //find the left && top point
+            int tl = 0;
+            double minLength = chessboardBowlKeyPoints[0].x * chessboardBowlKeyPoints[0].x + chessboardBowlKeyPoints[0].y * chessboardBowlKeyPoints[0].y;
+            for (int i = 1; i < 4; i++) {
+                double currentLength = chessboardBowlKeyPoints[i].x * chessboardBowlKeyPoints[i].x + chessboardBowlKeyPoints[i].y * chessboardBowlKeyPoints[i].y;
+                if (currentLength < minLength) {
+                    minLength = currentLength;
+                    tl = i;
+                }
+            }
+
+            //update the chessboardBowlKeyPoints
+            for (int i = tl, cnt = 0; cnt < 4; cnt++, i = (i + 1) % 4) {
+                ChessUtils.chessboardBowlKeyPoints[cnt] = chessboardBowlKeyPoints[i];
+            }
+            chessboardBowlKeyPoints = ChessUtils.chessboardBowlKeyPoints;
+
+            zeroMatOfPoint.copyTo(tmpMatOfPoint);
+            MatOfPoint polyMat = tmpMatOfPoint;
+
+            polyMat.fromArray(chessboardBowlKeyPoints);
+            List<MatOfPoint> polyMatList = new ArrayList<>();
+            polyMatList.add(polyMat);
+
+            zeroGray.copyTo(tmpMat2);
+            Mat mask = tmpMat2;
+
+            Core.fillPoly(mask, polyMatList, new Scalar(255));
+            for (MatOfPoint aMatOfPoint : polyMatList) {
+                aMatOfPoint.release();
+            }
+
+            rgbaImg.copyTo(tmpMat2, mask);
+            tmpMat2.copyTo(rgbaImg);
+
+            List<List<Point>> chessPoints = new ArrayList<>();
+            for (int i = 0; i < 9; i++) {
+                List<Point> aRow = new ArrayList<>();
+                double startX = chessboardBowlKeyPoints[0].x + (chessboardBowlKeyPoints[3].x - chessboardBowlKeyPoints[0].x) / 4 * i;
+                double startY = chessboardBowlKeyPoints[0].y + (chessboardBowlKeyPoints[3].y - chessboardBowlKeyPoints[0].y) / 8 * i;
+                double endX = chessboardBowlKeyPoints[1].x + (chessboardBowlKeyPoints[2].x - chessboardBowlKeyPoints[1].x) / 4 * i;
+                double endY = chessboardBowlKeyPoints[1].y + (chessboardBowlKeyPoints[2].y - chessboardBowlKeyPoints[1].y) / 8 * i;
+                for (int j = 0; j < 5; j++) {
+                    aRow.add(new Point(startX + (endX - startX) / 4 * j, startY + (endY - startY) / 8 * j));
+                }
+                chessPoints.add(aRow);
+            }
+
+            for (int row = 0; row < chessPoints.size() - 1; row++) {
+                List<Point> thisRow = chessPoints.get(row);
+                List<Point> nextRow = chessPoints.get(row + 1);
+                double y = (thisRow.get(0).y + nextRow.get(0).y) / 2;
+                for (int col = 0; col < thisRow.size() - 1; col++) {
+                    Chessboard chessboardBowl = new Chessboard();
+                    chessboardBowl.x = (thisRow.get(col).x + thisRow.get(col + 1).x) / 2;
+                    chessboardBowl.y = y;
+                    ChessUtils.chessboardBowl[row][col] = chessboardBowl;
+                }
+            }
+        }
+    }
+
     private int[] selectEmptyPlace() {
         int[] position = new int[2];
         for (int row = 2; row < 5; row++) {
@@ -740,12 +825,14 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
             if (selectedChess.getChessType() == chess.getChessType()) {
                 needMove = false;
             } else {
-                //TODO 把原来的棋子移走
-
+                //把棋子移动到空位置去
                 int[] emptyLogicPosition = selectEmptyPlace();
                 char[] emptyChessPosition = ChessUtils.logicPosition2ChessPosition(emptyLogicPosition);
-                char[] selectedLogicPosition = ChessUtils.logicPosition2ChessPosition(selectedChess.getLogicPosition());
-                Log.e(TAG, "Clear: Move " + Arrays.toString(selectedLogicPosition) + " to " + Arrays.toString(emptyChessPosition));
+                char[] selectedChessPosition = ChessUtils.logicPosition2ChessPosition(selectedChess.getLogicPosition());
+                String from = String.valueOf(selectedChessPosition).toUpperCase();
+                String to = String.valueOf(emptyChessPosition).toUpperCase();
+                Log.e(TAG, "Clear: Move " + from + " to " + to);
+                moveSystem.moveA2B(ProjectSetting.INTERNATIONAL_CHESS, from, ProjectSetting.INTERNATIONAL_CHESS, to);
 
                 Chessboard emptyBoard = ChessUtils.chessboard[emptyLogicPosition[0]][emptyLogicPosition[1]];
                 selectedChess.setAlive(true);
@@ -754,8 +841,6 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
             }
         }
         if (needMove) {
-            //TODO 把棋子移过去
-
             //将要移动到的棋盘格子的位置
             int[] currentLogicPosition = {row, col};
             char[] currentChessPosition = ChessUtils.logicPosition2ChessPosition(currentLogicPosition);
@@ -764,9 +849,23 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
             int[] chessLogicPosition = chess.getLogicPosition();
             char[] chessChessPosition = ChessUtils.logicPosition2ChessPosition(chessLogicPosition);
 
-            Log.e(TAG, "Move " + Arrays.toString(chessChessPosition) + " to " + Arrays.toString(currentChessPosition));
+            String from = String.valueOf(chessChessPosition).toUpperCase();
+            String to = String.valueOf(currentChessPosition).toUpperCase();
 
-            ChessUtils.chessboard[chessLogicPosition[0]][chessLogicPosition[1]].setChess(null);
+            String fromBoard;
+            int chessboardType;
+            if (chess.isAlive()) {
+                fromBoard = "chessboard";
+                chessboardType = ProjectSetting.INTERNATIONAL_CHESS;
+                ChessUtils.chessboard[chessLogicPosition[0]][chessLogicPosition[1]].setChess(null);
+            } else {
+                fromBoard = "chessboardBowl";
+                chessboardType = ProjectSetting.INTERNATIONAL_CHESS_BOWL;
+                ChessUtils.chessboardBowl[chessLogicPosition[0]][chessLogicPosition[1]].setChess(null);
+            }
+
+            Log.e(TAG, fromBoard + " Move " + from + " to " + to);
+            moveSystem.moveA2B(chessboardType, from, ProjectSetting.INTERNATIONAL_CHESS, to);
             chess.setAlive(true);
             chess.setLogicPosition(row, col);
             currentChessBoard.setChess(chess);
@@ -778,7 +877,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         //白子大写 黑子小写
         //战车R 马N 象B 后Q 王K 兵P
         for (int cnt = 0; cnt < 32; cnt++) {
-            Chess chess = ChessUtils.chesses[cnt];
+            Chess chess = ChessUtils.chess[cnt];
             switch (chess.getChessType()) {
                 case 'r':
                     if (!resetChessBoard(chess, 0, 0)) {
@@ -927,7 +1026,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         Core.merge(hsvSplits, hsvImg);
 
         Mat labelImg = tmpMat;
-        Core.inRange(hsvImg, new Scalar(35, 110, 50), new Scalar(99, 255, 255), labelImg);
+        Core.inRange(hsvImg, new Scalar(160, 100, 80), new Scalar(180, 255, 255), labelImg);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_OPEN, morphologyExElement);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_CLOSE, morphologyExElement);
         return labelImg;
@@ -948,9 +1047,9 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
 //        Log.d(TAG, "Circle Numbers: " + circles.size());
 //
 //        Mat chessImg = tmpMat2;
-//        zeroChessesMat.copyTo(chessImg);
+//        zeroChessMat.copyTo(chessImg);
 //
-//        ChessUtils.chesses = new Chess[32];
+//        ChessUtils.chess = new Chess[32];
 //        if (circles.size() > 0) {
 //            for (int cnt = 0; cnt < circles.size() && cnt < 32; cnt++) {
 //                double x = circles.get(cnt).x;

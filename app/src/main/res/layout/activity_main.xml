@@ -39,25 +39,46 @@
         android:orientation="horizontal">
 
         <Button
+            android:id="@+id/labButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/lab" />
+
+        <Button
+            android:id="@+id/resetHardwareButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/SetHardware2zero" />
+
+        <Button
+            android:id="@+id/move2ZeroButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/back"/>
+
+        <Button
             android:id="@+id/initButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Hello World!" />
+            android:text="@string/DetectChessboard" />
 
         <Button
             android:id="@+id/resetChessButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Hello World!" />
+            android:text="@string/ResetChess" />
 
         <Button
             android:id="@+id/playChessButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Hello World!" />
+            android:text="@string/PlayChess" />
     </LinearLayout>
 
     <org.opencv.android.JavaCameraView

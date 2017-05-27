@@ -5,18 +5,27 @@ import org.opencv.core.Point;
 import org.ubilabs.ubichess.modle.Chess;
 import org.ubilabs.ubichess.modle.Chessboard;
 
+import java.nio.channels.Pipe;
+
 public class ChessUtils {
     public static Chessboard[][] chessboard = new Chessboard[8][8];
-    public static Chess[] chesses = new Chess[32];
-    public static Point[] chessKeypoints = new Point[4];
+    public static Chessboard[][] chessboardBowl = new Chessboard[8][4];
+    public static Chess[] chess = new Chess[32];
+    public static Point[] chessboardKeyPoints = new Point[4];
+    public static Point[] chessboardBowlKeyPoints = new Point[4];
 
     //[7][0] -> x,y
-    public static double[] logicPosition2AbsolutePosition(int[] logicPosition) {
+    public static double[] logicPosition2AbsolutePosition(int[] logicPosition, boolean isAlive) {
         double[] absolutePosition = new double[2];
         int row = logicPosition[0];
         int col = logicPosition[1];
-        absolutePosition[0] = chessboard[row][col].x;
-        absolutePosition[1] = chessboard[row][col].y;
+        if (isAlive) {
+            absolutePosition[0] = chessboard[row][col].x;
+            absolutePosition[1] = chessboard[row][col].y;
+        } else {
+            absolutePosition[0] = chessboardBowl[row][col].x;
+            absolutePosition[1] = chessboardBowl[row][col].y;
+        }
         return absolutePosition;
     }
 

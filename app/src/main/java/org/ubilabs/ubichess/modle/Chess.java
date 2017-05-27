@@ -46,8 +46,8 @@ public class Chess {
     }
 
     public double[] getAbsolutePosition() {
-        if (alive) {
-            return ChessUtils.logicPosition2AbsolutePosition(logicPosition);
+        if (ChessUtils.chessboard[7][7] != null && ChessUtils.chessboardBowl[7][3] != null) {
+            return ChessUtils.logicPosition2AbsolutePosition(logicPosition, alive);
         }
         return absolutePosition;
     }

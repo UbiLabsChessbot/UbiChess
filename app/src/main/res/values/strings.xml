@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">OpencvChess</string>
-    <string name="screenshot">截屏</string>
-    <string name="detectChessboard">识别棋盘</string>
-    <string name="detectChess">识别棋子</string>
+    <string name="Screenshot">截屏</string>
+    <string name="DetectChess">识别棋子</string>
+    <string name="SetHardware2zero">硬件归零</string>
+    <string name="DetectChessboard">识别棋盘</string>
+    <string name="ResetChess">码棋</string>
+    <string name="PlayChess">下棋</string>
+    <string name="lab">Lab</string>
+    <string name="back">回到初始点</string>
 </resources>
