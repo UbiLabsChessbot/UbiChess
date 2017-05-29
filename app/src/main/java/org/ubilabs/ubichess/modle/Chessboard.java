@@ -39,8 +39,8 @@ public class Chessboard {
 
     public static Chessboard[][] deepCloneArray(Chessboard[][] oldArray) {
         Chessboard[][] chessboard = new Chessboard[oldArray.length][oldArray[0].length];
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
+        for (int row = 0; row < oldArray.length; row++) {
+            for (int col = 0; col < oldArray[0].length; col++) {
                 chessboard[row][col] = oldArray[row][col].deepClone();
             }
         }

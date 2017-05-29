@@ -6,7 +6,6 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -26,14 +25,13 @@ import org.ubilabs.ubichess.control.RequestChessType;
 import org.ubilabs.ubichess.modle.Chess;
 import org.ubilabs.ubichess.modle.Chessboard;
 import org.ubilabs.ubichess.uitl.ChessUtils;
+import org.ubilabs.ubichess.uitl.ImgUtils;
 import org.ubilabs.ubichess.uitl.PermissionUtils;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.app.Activity;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -44,17 +42,10 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.ExecutionException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import me.michaeljiang.movesystemlibs.movesystem.MoveSystem;
 import me.michaeljiang.movesystemlibs.movesystem.setting.ProjectSetting;
@@ -95,6 +86,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
     private int playStep;
 
     private Chessboard oldChessboard[][];
+    private Chessboard oldChessboardBowl[][];
 
     private MoveSystem moveSystem;
 
@@ -299,29 +291,6 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
     public void onCameraViewStopped() {
     }
 
-    private File mat2PngFile(Mat mat) {
-        Bitmap bmp = Bitmap.createBitmap(mat.width(), mat.height(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(mat, bmp);
-        Log.e(TAG, "Transform: finish! ");
-
-        File file = null;
-        FileOutputStream fos;
-        try {
-            file = new File(Environment.getExternalStorageDirectory() + "/Chess/Chess" + ".png");
-//            file = new File(Environment.getExternalStorageDirectory() + "/Chess/Chess" + generateCnt + ".png");
-//            if (generateCnt < 30) {
-//                generateCnt++;
-//            } else {
-//                generateCnt = 0;
-//            }
-            fos = new FileOutputStream(file);
-            bmp.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return file;
-    }
 
     @Override
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
@@ -336,7 +305,10 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                         case 0:
                             break;
                         case 1:
-                            ret = lab(inputFrame);
+//                            ret = lab(inputFrame);
+                            if (detectChessMen(inputFrame)) {
+                                doSignal = false;
+                            }
                             break;
                     }
                     break;
@@ -377,7 +349,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                         //保存旧棋盘状态
                         case 0:
                             if (detectChessMen(inputFrame)) {
-                                oldChessboard = saveCurrentChessBoard();
+                                oldChessboard = saveCurrentChessboard();
                                 doSignal = false;
                             }
                             break;
@@ -388,8 +360,10 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                                 String playerStep = detectChessStep(oldChessboard);
                                 Log.e(TAG, "Player Step: " + playerStep);
                                 //给出机械臂走法
-                                String robotStep = requireChessStep(playerStep);
+                                String robotStep = requireRobotChessStep(playerStep);
                                 Log.e(TAG, "Robot Step: " + robotStep);
+                                doRobotChessStep(robotStep);
+                                moveSystem.move2Zero();
                                 doSignal = false;
                             }
                             break;
@@ -423,69 +397,6 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         }
 
         return ret;
-    }
-
-    private void printChessState(Chessboard[][] chessboard) {
-        for (int row = 0; row < 8; row++) {
-            String tmp = "";
-            for (int col = 0; col < 8; col++) {
-                Chess chess = chessboard[row][col].getChess();
-                if (chess != null) {
-                    tmp += chess.getChessType();
-                } else {
-                    tmp += 1;
-                }
-            }
-            Log.e(TAG, tmp);
-        }
-    }
-
-    private boolean autoCheckChessType(String message, File imgFile) {
-        String from = "";
-        String to = "";
-        String[] chessTypes = {"p", "r", "n", "b", "q", "k", "P", "R", "N", "B", "Q", "K"};
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault());
-        String dateString = sdf.format(new Date());
-        Pattern pattern;
-        Matcher matcher;
-
-        for (String chessType : chessTypes) {
-            pattern = Pattern.compile(chessType);
-            matcher = pattern.matcher(message);
-            String chessTypeUpperCase = chessType.toUpperCase();
-            int cnt = 0;
-            while (matcher.find()) {
-                cnt++;
-            }
-            int rightCnt;
-
-            switch (chessTypeUpperCase) {
-                case "P":
-                    rightCnt = 8;
-                    break;
-                case "Q":
-                case "K":
-                    rightCnt = 1;
-                    break;
-                default:
-                    rightCnt = 2;
-                    break;
-            }
-
-            if (cnt != rightCnt) {
-                if (cnt < rightCnt) {
-                    from += chessType;
-                } else if (cnt > rightCnt) {
-                    to += chessType;
-                }
-            }
-        }
-        if (from.length() != 0 || to.length() != 0) {
-            boolean isSuccess = imgFile.renameTo(new File(Environment.getExternalStorageDirectory() + "/Chess/" + from + "2" + to + "_" + dateString + ".png"));
-            Log.e(TAG, "Wrong img Rename: " + isSuccess + " about: " + from + "2" + to);
-            return false;
-        }
-        return true;
     }
 
     private boolean detectChessMen(CvCameraViewFrame inputFrame) {
@@ -548,7 +459,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                 }
                 ChessUtils.chess[cnt] = chess;
             }
-            File imgFile = mat2PngFile(chessImg);
+            File imgFile = ImgUtils.mat2PngFile(chessImg);
             RequestChessType requestChessType = new RequestChessType();
             try {
                 String ret = requestChessType.execute(imgFile).get();
@@ -558,8 +469,8 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                 for (int i = 0; i < chessType.length(); i++) {
                     ChessUtils.chess[i].setChessType(chessType.charAt(i));
                 }
-                printChessState(ChessUtils.chessboard);
-                return autoCheckChessType(chessType, imgFile);
+                ChessUtils.printChessState(ChessUtils.chessboard);
+                return ChessUtils.checkChessType(chessType, imgFile);
             } catch (InterruptedException | ExecutionException | JSONException e) {
                 e.printStackTrace();
             }
@@ -791,11 +702,25 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         }
     }
 
-    private int[] selectEmptyPlace() {
+    private int[] findEmptyChessboard() {
         int[] position = new int[2];
-        for (int row = 2; row < 5; row++) {
+        for (int row = 2; row < 6; row++) {
             for (int col = 0; col < 8; col++) {
                 if (ChessUtils.chessboard[row][col].getChess() == null) {
+                    position[0] = row;
+                    position[1] = col;
+                    return position;
+                }
+            }
+        }
+        return position;
+    }
+
+    private int[] findEmptyChessboardBowl() {
+        int[] position = new int[2];
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 4; col++) {
+                if (ChessUtils.chessboardBowl[row][col].getChess() == null) {
                     position[0] = row;
                     position[1] = col;
                     return position;
@@ -826,7 +751,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                 needMove = false;
             } else {
                 //把棋子移动到空位置去
-                int[] emptyLogicPosition = selectEmptyPlace();
+                int[] emptyLogicPosition = findEmptyChessboard();
                 char[] emptyChessPosition = ChessUtils.logicPosition2ChessPosition(emptyLogicPosition);
                 char[] selectedChessPosition = ChessUtils.logicPosition2ChessPosition(selectedChess.getLogicPosition());
                 String from = String.valueOf(selectedChessPosition).toUpperCase();
@@ -942,17 +867,8 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         }
     }
 
-    private Chessboard[][] saveCurrentChessBoard() {
-        Chessboard[][] chessboard = Chessboard.deepCloneArray(ChessUtils.chessboard);
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                if (chessboard[row][col].getChess() != null) {
-                    chessboard[row][col].setChess(ChessUtils.chessboard[row][col].getChess().deepClone());
-                }
-            }
-        }
-
-        return chessboard;
+    private Chessboard[][] saveCurrentChessboard() {
+        return Chessboard.deepCloneArray(ChessUtils.chessboard);
     }
 
     private String detectChessStep(Chessboard[][] oldChessboard) {
@@ -972,7 +888,6 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                         } else {
                             start2 = String.valueOf(ChessUtils.logicPosition2ChessPosition(logicPosition));
                         }
-
                     } else if (old.getChess() == null) {
                         if (Character.toUpperCase(current.getChess().getChessType()) == 'K') {
                             end = String.valueOf(ChessUtils.logicPosition2ChessPosition(logicPosition));
@@ -981,14 +896,14 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                         }
                     }
                 } else if (old.getChess() != null && current.getChess() != null && old.getChess().getChessType() != current.getChess().getChessType()) {
-                    end = String.valueOf(ChessUtils.logicPosition2ChessPosition(logicPosition));
+                    end2 = String.valueOf(ChessUtils.logicPosition2ChessPosition(logicPosition));
                 }
             }
         }
         return start + end + start2 + end2;
     }
 
-    private String requireChessStep(String playerStep) {
+    private String requireRobotChessStep(String playerStep) {
         String robotStep = "null";
         RequestChessStep requestChessStep = new RequestChessStep();
         try {
@@ -1000,6 +915,47 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
             e.printStackTrace();
         }
         return robotStep;
+    }
+
+    private void doRobotChessStep(String robotStep) {
+        char[] originChessPosition = {robotStep.charAt(0), robotStep.charAt(1)};
+        char[] targetChessPosition = {robotStep.charAt(2), robotStep.charAt(3)};
+
+        int[] targetLogicPosition = ChessUtils.chessPosition2LogicPosition(targetChessPosition);
+        if (ChessUtils.chessboard[targetLogicPosition[0]][targetLogicPosition[1]].getChess() != null) {
+            int[] emptyChessboardBowlLogicPosition = findEmptyChessboardBowl();
+            char[] emptyChessboardBowlChessPosition = ChessUtils.logicPosition2ChessPosition(emptyChessboardBowlLogicPosition);
+            String from = String.valueOf(targetChessPosition).toUpperCase();
+            String to = String.valueOf(emptyChessboardBowlChessPosition).toUpperCase();
+            Log.e(TAG, "Move " + from + " to chessboardBowl " + to);
+            moveSystem.moveA2B(ProjectSetting.INTERNATIONAL_CHESS, from, ProjectSetting.INTERNATIONAL_CHESS_BOWL, to);
+        }
+
+        String from = String.valueOf(originChessPosition).toUpperCase();
+        String to = String.valueOf(targetChessPosition).toUpperCase();
+
+        boolean needMore = false;
+        String fromMore = "";
+        String toMore = "";
+
+        int[] originLogicPosition = ChessUtils.chessPosition2LogicPosition(originChessPosition);
+        if ((from + to).equals("E8G8") && ChessUtils.chessboard[originLogicPosition[0]][originLogicPosition[1]].getChess().getChessType() == 'k') {
+            fromMore = "H8";
+            toMore = "F8";
+            needMore = true;
+        } else if ((from + to).equals("E8C8") && ChessUtils.chessboard[originLogicPosition[0]][originLogicPosition[1]].getChess().getChessType() == 'k') {
+            fromMore = "A8";
+            toMore = "D8";
+            needMore = true;
+        }
+
+        Log.e(TAG, "Move " + from + " to " + to);
+        moveSystem.moveA2B(ProjectSetting.INTERNATIONAL_CHESS, from, ProjectSetting.INTERNATIONAL_CHESS, to);
+
+        if (needMore) {
+            Log.e(TAG, "Move " + from + " to " + to);
+            moveSystem.moveA2B(ProjectSetting.INTERNATIONAL_CHESS, fromMore, ProjectSetting.INTERNATIONAL_CHESS, toMore);
+        }
     }
 
     /* Lab*/
@@ -1060,11 +1016,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
 //            }
 //        }
 //        return rgbaImg;
-
-//        detectChessBoard(inputFrame);
-//        detectChessMen(inputFrame);
     }
-
 
     private void requestPermission() {
         PermissionUtils.requestMultiPermissions(this, mPermissionGrant);

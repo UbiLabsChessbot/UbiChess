@@ -20,7 +20,7 @@ public class RequestChessType extends AsyncTask<File, Integer, String> {
     @Override
     protected String doInBackground(File... params) {
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        String url = "http://10.66.15.87:5000/upload";
+        String url = "http://192.168.2.52:5000/upload";
         String ret = "No Data";
         try {
             HttpPost httppost = new HttpPost(url);

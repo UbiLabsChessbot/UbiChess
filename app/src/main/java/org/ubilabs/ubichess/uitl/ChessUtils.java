@@ -1,13 +1,23 @@
 package org.ubilabs.ubichess.uitl;
 
 
+import android.os.Environment;
+import android.util.Log;
+
 import org.opencv.core.Point;
 import org.ubilabs.ubichess.modle.Chess;
 import org.ubilabs.ubichess.modle.Chessboard;
 
-import java.nio.channels.Pipe;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChessUtils {
+    private static final String TAG = ChessUtils.class.getSimpleName();
+
     public static Chessboard[][] chessboard = new Chessboard[8][8];
     public static Chessboard[][] chessboardBowl = new Chessboard[8][4];
     public static Chess[] chess = new Chess[32];
@@ -35,5 +45,76 @@ public class ChessUtils {
         chessPosition[0] = (char) (logicPosition[1] + 'a');
         chessPosition[1] = (char) (8 - logicPosition[0] + '0');
         return chessPosition;
+    }
+
+    //c5 -> [3][2]
+    public static int[] chessPosition2LogicPosition(char[] chessPosition) {
+        int[] logicPosition = new int[2];
+        logicPosition[0] = '8' - chessPosition[1];
+        logicPosition[1] = chessPosition[0] - 'a';
+        return logicPosition;
+    }
+
+    public static void printChessState(Chessboard[][] chessboard) {
+        for (int row = 0; row < 8; row++) {
+            String tmp = "";
+            for (int col = 0; col < 8; col++) {
+                Chess chess = chessboard[row][col].getChess();
+                if (chess != null) {
+                    tmp += chess.getChessType();
+                } else {
+                    tmp += 1;
+                }
+            }
+            Log.e(TAG, tmp);
+        }
+    }
+
+    public static boolean checkChessType(String message, File imgFile) {
+        String from = "";
+        String to = "";
+        String[] chessTypes = {"p", "r", "n", "b", "q", "k", "P", "R", "N", "B", "Q", "K"};
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault());
+        String dateString = sdf.format(new Date());
+        Pattern pattern;
+        Matcher matcher;
+
+        for (String chessType : chessTypes) {
+            pattern = Pattern.compile(chessType);
+            matcher = pattern.matcher(message);
+            String chessTypeUpperCase = chessType.toUpperCase();
+            int cnt = 0;
+            while (matcher.find()) {
+                cnt++;
+            }
+            int rightCnt;
+
+            switch (chessTypeUpperCase) {
+                case "P":
+                    rightCnt = 8;
+                    break;
+                case "Q":
+                case "K":
+                    rightCnt = 1;
+                    break;
+                default:
+                    rightCnt = 2;
+                    break;
+            }
+
+            if (cnt != rightCnt) {
+                if (cnt < rightCnt) {
+                    from += chessType;
+                } else if (cnt > rightCnt) {
+                    to += chessType;
+                }
+            }
+        }
+        if (from.length() != 0 || to.length() != 0) {
+            boolean isSuccess = imgFile.renameTo(new File(Environment.getExternalStorageDirectory() + "/Chess/" + from + "2" + to + "_" + dateString + ".png"));
+            Log.e(TAG, "Wrong img Rename: " + isSuccess + " about: " + from + "2" + to);
+            return false;
+        }
+        return true;
     }
 }
