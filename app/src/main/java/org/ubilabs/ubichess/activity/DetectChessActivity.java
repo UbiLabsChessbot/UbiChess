@@ -29,7 +29,9 @@ import org.ubilabs.ubichess.uitl.ImgUtils;
 import org.ubilabs.ubichess.uitl.PermissionUtils;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.app.Activity;
 import android.support.annotation.NonNull;
@@ -57,6 +59,9 @@ import static org.opencv.imgproc.Imgproc.MORPH_RECT;
 public class DetectChessActivity extends Activity implements CvCameraViewListener2 {
     private static final String TAG = DetectChessActivity.class.getSimpleName();
     private static final int ChessRadius = 45;
+
+    private Context context;
+    private MediaPlayer mediaPlayer;
 
     private CameraBridgeViewBase openCvCameraView;
     private Mat inputRgbaImg;
@@ -86,7 +91,6 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
     private int playStep;
 
     private Chessboard oldChessboard[][];
-    private Chessboard oldChessboardBowl[][];
 
     private MoveSystem moveSystem;
 
@@ -107,6 +111,8 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
+
+        context = this;
 
 //        hEdit = (SeekBar) findViewById(R.id.hEdit);
 //        hEdit.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -266,7 +272,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
     @Override
     public void onCameraViewStarted(int width, int height) {
         Size imgSize = new Size(width, height);
-        Size chessesSize = new Size(ChessRadius * 2 * 8, ChessRadius * 2 * 4);
+        Size chessSize = new Size(ChessRadius * 2 * 8, ChessRadius * 2 * 4);
         inputRgbaImg = new Mat();
         tmpMat = new Mat();
         tmpMat2 = new Mat();
@@ -280,7 +286,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         zeroMatOfPoint = new MatOfPoint();
         zeroMatOfPoint3f = new MatOfPoint3f();
         zeroGray = new Mat(imgSize, CvType.CV_8U, new Scalar(0));
-        zeroChessMat = new Mat(chessesSize, CvType.CV_8UC4, new Scalar(0));
+        zeroChessMat = new Mat(chessSize, CvType.CV_8UC4, new Scalar(0));
         morphologyExElement = Imgproc.getStructuringElement(MORPH_RECT, new Size(5, 5));
 
         chessMaskMat = new Mat(ChessRadius * 2, ChessRadius * 2, CvType.CV_8U, new Scalar(0));
@@ -305,10 +311,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                         case 0:
                             break;
                         case 1:
-//                            ret = lab(inputFrame);
-                            if (detectChessMen(inputFrame)) {
-                                doSignal = false;
-                            }
+                            ret = lab(inputFrame);
                             break;
                     }
                     break;
@@ -329,6 +332,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                     detectChessBoard(inputFrame);
                     detectChessBoardBowl(inputFrame);
                     if (ChessUtils.chessboard[7][7] != null && ChessUtils.chessboardKeyPoints[3] != null && ChessUtils.chessboardBowl[7][3] != null && ChessUtils.chessboardBowlKeyPoints[3] != null) {
+                        playVoice(R.raw.welcome);
                         doSignal = false;
                     }
                     break;
@@ -349,6 +353,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                         //保存旧棋盘状态
                         case 0:
                             if (detectChessMen(inputFrame)) {
+                                playVoice(R.raw.yourturn);
                                 oldChessboard = saveCurrentChessboard();
                                 doSignal = false;
                             }
@@ -501,7 +506,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         Core.merge(hsvSplits, hsvImg);
 
         Mat labelImg = tmpMat;
-        Core.inRange(hsvImg, new Scalar(100, 120, 80), new Scalar(124, 255, 255), labelImg);
+        Core.inRange(hsvImg, new Scalar(100, 120, 110), new Scalar(124, 255, 255), labelImg);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_OPEN, morphologyExElement);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_CLOSE, morphologyExElement);
 
@@ -613,7 +618,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         Core.merge(hsvSplits, hsvImg);
 
         Mat labelImg = tmpMat;
-        Core.inRange(hsvImg, new Scalar(160, 110, 50), new Scalar(180, 255, 255), labelImg);
+        Core.inRange(hsvImg, new Scalar(160, 110, 80), new Scalar(180, 255, 255), labelImg);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_OPEN, morphologyExElement);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_CLOSE, morphologyExElement);
 
@@ -982,7 +987,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         Core.merge(hsvSplits, hsvImg);
 
         Mat labelImg = tmpMat;
-        Core.inRange(hsvImg, new Scalar(160, 100, 80), new Scalar(180, 255, 255), labelImg);
+        Core.inRange(hsvImg, new Scalar(100, 120, 100), new Scalar(124, 255, 255), labelImg);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_OPEN, morphologyExElement);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_CLOSE, morphologyExElement);
         return labelImg;
@@ -1016,6 +1021,22 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
 //            }
 //        }
 //        return rgbaImg;
+    }
+
+    private void playVoice(int resourceID) {
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+            Log.e("TAG", "Release media player!");
+        }
+        mediaPlayer = MediaPlayer.create(context, resourceID);
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                mediaPlayer.release();
+            }
+        });
+        mediaPlayer.start();
     }
 
     private void requestPermission() {
