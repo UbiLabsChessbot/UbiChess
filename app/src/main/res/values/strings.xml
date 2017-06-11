@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">OpencvChess</string>
+    <string name="app_name">UbiChess</string>
     <string name="Screenshot">截屏</string>
     <string name="DetectChess">识别棋子</string>
     <string name="SetHardware2zero">硬件归零</string>

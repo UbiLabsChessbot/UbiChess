@@ -1,30 +1,37 @@
 package org.ubilabs.ubichess.control;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
+import java.io.File;
 import java.io.IOException;
 
 import cz.msebera.android.httpclient.HttpEntity;
 import cz.msebera.android.httpclient.client.methods.CloseableHttpResponse;
-import cz.msebera.android.httpclient.client.methods.HttpGet;
+import cz.msebera.android.httpclient.client.methods.HttpPost;
+import cz.msebera.android.httpclient.entity.mime.MultipartEntityBuilder;
+import cz.msebera.android.httpclient.entity.mime.content.FileBody;
 import cz.msebera.android.httpclient.impl.client.CloseableHttpClient;
 import cz.msebera.android.httpclient.impl.client.HttpClients;
 import cz.msebera.android.httpclient.util.EntityUtils;
 
-public class RequestChessStep extends AsyncTask<String, Integer, String> {
-    private static final String TAG = RequestChessStep.class.getSimpleName();
+public class ChessTypeRequest extends AsyncTask<File, Integer, String> {
+    private static final String TAG = ChessTypeRequest.class.getSimpleName();
 
     @Override
-    protected String doInBackground(String... params) {
+    protected String doInBackground(File... params) {
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        String url = "http://192.168.2.52:8080?move=" + params[0];
-        Log.e(TAG, "url: " + url);
-        String ret = "Request Failed";
+        String url = "http://192.168.2.52:5000/upload";
+        String ret = "No Data";
         try {
-            HttpGet httpGet = new HttpGet(url);
+            HttpPost httppost = new HttpPost(url);
 
-            CloseableHttpResponse response = httpClient.execute(httpGet);
+            FileBody bin = new FileBody(params[0]);
+
+            HttpEntity reqEntity = MultipartEntityBuilder.create().addPart("file", bin).build();
+
+            httppost.setEntity(reqEntity);
+
+            CloseableHttpResponse response = httpClient.execute(httppost);
             try {
                 HttpEntity resEntity = response.getEntity();
                 if (resEntity != null) {

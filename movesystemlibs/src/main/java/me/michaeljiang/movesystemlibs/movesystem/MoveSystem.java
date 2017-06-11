@@ -95,26 +95,26 @@ public class MoveSystem {
      * 测试用数据
      **/
     //internation_chess
-    MotoPosition Internation_1 = new MotoPosition(new int[]{86, 45, 99, 90, 65, 90, 75});
-    MotoPosition Internation_2 = new MotoPosition(new int[]{85, 61, 111, 90, 49, 90, 75});
-    MotoPosition Internation_3 = new MotoPosition(new int[]{85, 81, 116, 90, 44, 90, 75});
-    MotoPosition Internation_4 = new MotoPosition(new int[]{84, 105, 116, 90, 44, 90, 75});
+    MotoPosition Internation_1 = new MotoPosition(new int[]{85, 44, 99, 90, 58, 90, 70});
+    MotoPosition Internation_2 = new MotoPosition(new int[]{85, 63, 111, 90, 43, 90, 70});
+    MotoPosition Internation_3 = new MotoPosition(new int[]{84, 83, 115, 90, 40, 90, 70});
+    MotoPosition Internation_4 = new MotoPosition(new int[]{83, 104, 115, 90, 40, 90, 70});
 
-    MotoPosition Internation_5 = new MotoPosition(new int[]{136, 71, 113, 91, 43, 90, 75});
-    MotoPosition Internation_6 = new MotoPosition(new int[]{141, 83, 117, 91, 46, 90, 75});
-    MotoPosition Internation_7 = new MotoPosition(new int[]{148, 98, 112, 90, 49, 90, 75});
-    MotoPosition Internation_8 = new MotoPosition(new int[]{155, 108, 116, 90, 44, 90, 75});
+    MotoPosition Internation_5 = new MotoPosition(new int[]{138, 62, 114, 90, 37, 90, 70});
+    MotoPosition Internation_6 = new MotoPosition(new int[]{143, 74, 116, 90, 37, 90, 70});
+    MotoPosition Internation_7 = new MotoPosition(new int[]{149, 85, 117, 90, 37, 90, 70});
+    MotoPosition Internation_8 = new MotoPosition(new int[]{156, 94, 118, 90, 37, 90, 70});
 
     //internation_chess_bowl
-    MotoPosition Internation_Bow_1 = new MotoPosition(new int[]{115, 33, 96, 90, 64, 90, 75});
-    MotoPosition Internation_Bow_2 = new MotoPosition(new int[]{117, 52, 106, 90, 58, 90, 75});
-    MotoPosition Internation_Bow_3 = new MotoPosition(new int[]{120, 67, 113, 90, 51, 90, 75});
-    MotoPosition Internation_Bow_4 = new MotoPosition(new int[]{123, 81, 118, 90, 47, 90, 75});
+    MotoPosition Internation_Bow_1 = new MotoPosition(new int[]{114, 40, 98, 90, 58, 90, 70});
+    MotoPosition Internation_Bow_2 = new MotoPosition(new int[]{116, 55, 109, 90, 45, 90, 75});
+    MotoPosition Internation_Bow_3 = new MotoPosition(new int[]{118, 68, 116, 90, 38, 90, 70});
+    MotoPosition Internation_Bow_4 = new MotoPosition(new int[]{121, 82, 119, 90, 36, 90, 70});
 
-    MotoPosition Internation_Bow_5 = new MotoPosition(new int[]{139, 69, 116, 90, 50, 90, 75});
-    MotoPosition Internation_Bow_6 = new MotoPosition(new int[]{145, 80, 119, 88, 44, 90, 75});
-    MotoPosition Internation_Bow_7 = new MotoPosition(new int[]{150, 92, 117, 90, 46, 90, 75});
-    MotoPosition Internation_Bow_8 = new MotoPosition(new int[]{158, 101, 118, 90, 43, 90, 75});
+    MotoPosition Internation_Bow_5 = new MotoPosition(new int[]{140, 61, 112, 90, 43, 90, 70});
+    MotoPosition Internation_Bow_6 = new MotoPosition(new int[]{145, 70, 115, 90, 39, 90, 70});
+    MotoPosition Internation_Bow_7 = new MotoPosition(new int[]{150, 79, 118, 90, 36, 90, 70});
+    MotoPosition Internation_Bow_8 = new MotoPosition(new int[]{156, 86, 119, 90, 36, 90, 70});
     //
     //
     MotoPosition reset = new MotoPosition(new int[]{90, 90, 65, 90, 90, 90, 70});
@@ -133,11 +133,11 @@ public class MoveSystem {
 
         //格子之间相差5.1cm
         double tempPositionA = 0;//cm
-        double tempPositionB = 33.75;//cm
+        double tempPositionB = 37.5;//cm
 
-        //格子之间相差4.4cm
+        //格子之间相差4.5cm
         double tempPositionC = 0;//cm
-        double tempPositionD = 11.25;//cm
+        double tempPositionD = 15;//cm
         //col=column 竖行row=row 横行
 
         for (int row = 0; row < 8; row++) {
@@ -162,13 +162,13 @@ public class MoveSystem {
             internation_chess_bowl[row][2] = new Chess(Internation_Bow_3, tempPositionC);
             internation_chess_bowl[row][3] = new Chess(Internation_Bow_4, tempPositionC);
 
-            // -- Position 7.5 --
+            // -- Position 15 --
             internation_chess_bowl[row][4] = new Chess(Internation_Bow_5, tempPositionD);
             internation_chess_bowl[row][5] = new Chess(Internation_Bow_6, tempPositionD);
             internation_chess_bowl[row][6] = new Chess(Internation_Bow_7, tempPositionD);
             internation_chess_bowl[row][7] = new Chess(Internation_Bow_8, tempPositionD);
-            tempPositionC += 4.77;//cm
-            tempPositionD += 4.77;//cm
+            tempPositionC += 4.5;//cm
+            tempPositionD += 4.5;//cm
         }
 
     }
@@ -519,7 +519,7 @@ public class MoveSystem {
 
         //Step Two      回到复位的位置
         MoveData stepTwo = new MoveData();
-        MotoPosition resetPosition = readArm7BotData(reset, false, this.isCatch);
+        MotoPosition resetPosition = readArm7BotData(reset, false, this.isCatch,false);
         TransformResult transformResult = arm7Bot.toStandMotoByte(resetPosition);
         stepTwo.setTransformResult(transformResult);
         moveSystemSend.addMoveData(stepTwo);
@@ -552,17 +552,17 @@ public class MoveSystem {
         stepThree.setConveyerBandData(conveyerBandCommand);
 
         //计算机械手位移
-        MotoPosition prePosition = readArm7BotData(targetChess.getMotoPosition(), true, this.isCatch);
+        MotoPosition prePosition = readArm7BotData(targetChess.getMotoPosition(), true, this.isCatch,false);
         TransformResult stepThreeCommad = arm7Bot.toStandMotoByte(prePosition);
         stepThree.setTransformResult(stepThreeCommad);
         moveSystemSend.addMoveData(stepThree);
 
-        prePosition = readArm7BotData(targetChess.getMotoPosition(), true, isCatch);
+        prePosition = readArm7BotData(targetChess.getMotoPosition(), true, isCatch,false);
         armState.setTransformResult(arm7Bot.toStandMotoByte(prePosition));//设置原始的位置为isCatch
 
         //StepFourth
         MoveData stepFourth = new MoveData();
-        MotoPosition truePosition = readArm7BotData(targetChess.getMotoPosition(), false, this.isCatch);
+        MotoPosition truePosition = readArm7BotData(targetChess.getMotoPosition(), false, this.isCatch,false);
         TransformResult stepFourthCommad = arm7Bot.toStandMotoByte(truePosition);
         stepFourth.setTransformResult(stepFourthCommad);
         moveSystemSend.addMoveData(stepFourth);
@@ -570,7 +570,7 @@ public class MoveSystem {
         //StepFive
         this.isCatch = isCatch;
         MoveData stepFive = new MoveData();
-        MotoPosition finishPosition = readArm7BotData(targetChess.getMotoPosition(), false, this.isCatch);
+        MotoPosition finishPosition = readArm7BotData(targetChess.getMotoPosition(), false, this.isCatch,true);
         stepFive.setTransformResult(arm7Bot.toStandMotoByte(finishPosition));
         moveSystemSend.addMoveData(stepFive);
 
@@ -582,14 +582,15 @@ public class MoveSystem {
      * 根据条件返回调整和都舵机值
      *
      * @param data           目标的舵机值
-     * @param isReadPosition 是否为准备位置
+     * @param isReadyPosition 是否为准备位置
+     * @param isFinishPosition 是否为最终位置
      * @param isCatch        当前状态是否在抓取
      * @return 返回舵机值
      * @State Doing
      * @Version 1.0
      * @User MichaelJiang
      */
-    private MotoPosition readArm7BotData(MotoPosition data, boolean isReadPosition, boolean isCatch) {
+    private MotoPosition readArm7BotData(MotoPosition data, boolean isReadyPosition, boolean isCatch,boolean isFinishPosition) {
         MotoPosition readData = new MotoPosition();
         readData.setMotoData(data.getAngleInts());
         //如果是抓的则设置Moto7为0
@@ -599,9 +600,13 @@ public class MoveSystem {
             readData.setMoto7(70);
 
         //如果是预备位置，则设置Moto-15
-        if (isReadPosition)
+        if (isReadyPosition)
             readData.setMoto3(readData.getMoto3() - 15);
 
+        if(isFinishPosition){
+            int temp = readData.getMoto5();
+            readData.setMoto5(temp+10);
+        }
         return readData;
     }
 

@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 public class ChessUtils {
     private static final String TAG = ChessUtils.class.getSimpleName();
 
+    public static final int CHESS_RADIUS = 42;
     public static Chessboard[][] chessboard = new Chessboard[8][8];
     public static Chessboard[][] chessboardBowl = new Chessboard[8][4];
     public static Chess[] chess = new Chess[32];
@@ -111,10 +112,44 @@ public class ChessUtils {
             }
         }
         if (from.length() != 0 || to.length() != 0) {
-            boolean isSuccess = imgFile.renameTo(new File(Environment.getExternalStorageDirectory() + "/Chess/" + from + "2" + to + "_" + dateString + ".png"));
-            Log.e(TAG, "Wrong img Rename: " + isSuccess + " about: " + from + "2" + to);
+            File file = new File(Environment.getExternalStorageDirectory() + "/Chess/" + from + "2" + to + "_" + dateString + ".png");
+            if (!file.getParentFile().exists()) {
+                boolean isCreated = file.getParentFile().mkdir();
+                if (isCreated) {
+                    boolean isSuccess = imgFile.renameTo(file);
+                    Log.e(TAG, "Wrong img Rename: " + isSuccess + " about: " + from + "2" + to);
+                }
+            }
             return false;
         }
         return true;
+    }
+
+    public static int[] findEmptyChessboard() {
+        int[] position = new int[2];
+        for (int row = 2; row < 6; row++) {
+            for (int col = 0; col < 8; col++) {
+                if (chessboard[row][col].getChess() == null) {
+                    position[0] = row;
+                    position[1] = col;
+                    return position;
+                }
+            }
+        }
+        return position;
+    }
+
+    public static int[] findEmptyChessboardBowl() {
+        int[] position = new int[2];
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 4; col++) {
+                if (chessboardBowl[row][col].getChess() == null) {
+                    position[0] = row;
+                    position[1] = col;
+                    return position;
+                }
+            }
+        }
+        return position;
     }
 }
