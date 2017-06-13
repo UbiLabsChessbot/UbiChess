@@ -24,6 +24,12 @@ public class ImgUtils {
         FileOutputStream fos;
         try {
             file = new File(Environment.getExternalStorageDirectory() + "/Chess/Chess" + ".png");
+            if (!file.getParentFile().exists()) {
+                boolean isCreated = file.getParentFile().mkdir();
+                if (!isCreated) {
+                    return file;
+                }
+            }
             fos = new FileOutputStream(file);
             bmp.compress(Bitmap.CompressFormat.PNG, 100, fos);
             fos.close();

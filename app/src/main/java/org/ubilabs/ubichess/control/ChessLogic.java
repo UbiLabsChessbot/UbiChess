@@ -1,6 +1,7 @@
 package org.ubilabs.ubichess.control;
 
 
+import android.nfc.Tag;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -29,7 +30,7 @@ public class ChessLogic {
      * @param col   表示检查的棋盘列号
      * @return true 表示该棋子需要移动   false   表示该棋子不需移动
      */
-    public boolean resetChessBoard(Chess chess, int row, int col) {
+    private boolean resetChessBoard(Chess chess, int row, int col) {
         Chessboard currentChessBoard = ChessUtils.chessboard[row][col];
         Chess selectedChess = currentChessBoard.getChess();
         boolean needMove = true;
@@ -164,14 +165,14 @@ public class ChessLogic {
         return Chessboard.deepCloneArray(ChessUtils.chessboard);
     }
 
-    public String detectChessStep(Chessboard[][] oldChessboard) {
+    public String detectChessStep() {
         String start = "";
         String end = "";
         String start2 = "";
         String end2 = "";
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
-                Chessboard old = oldChessboard[row][col];
+                Chessboard old = ChessUtils.preChessboard[row][col];
                 Chessboard current = ChessUtils.chessboard[row][col];
                 int[] logicPosition = {row, col};
                 if ((old.getChess() == null || current.getChess() == null) && !(old.getChess() == null && current.getChess() == null)) {
@@ -196,58 +197,87 @@ public class ChessLogic {
         return start + end + start2 + end2;
     }
 
+    public void requireResetChess(){
+        ChessStepRequest requestChessStep = new ChessStepRequest();
+        requestChessStep.execute("123");
+        Log.e(TAG,"Reset Chess");
+    }
+
     public String requireRobotChessStep(String playerStep) {
-        String robotStep = "null";
+        String robotStep = null;
+        int code;
         ChessStepRequest requestChessStep = new ChessStepRequest();
         try {
             String ret = requestChessStep.execute(playerStep).get();
             Log.e(TAG, "Return JSON: " + ret);
             JSONObject jsonObject = new JSONObject(ret);
             robotStep = jsonObject.getString("message");
+            code = jsonObject.getInt("code");
+
+            if (code == 1) {
+                char[] originChessPosition = {robotStep.charAt(0), robotStep.charAt(1)};
+                char[] targetChessPosition = {robotStep.charAt(2), robotStep.charAt(3)};
+                String from = String.valueOf(originChessPosition);
+                String to = String.valueOf(targetChessPosition);
+                int[] originLogicPosition = ChessUtils.chessPosition2LogicPosition(originChessPosition);
+                if ((from + to).equals("e8g8") && ChessUtils.chessboard[originLogicPosition[0]][originLogicPosition[1]].getChess().getChessType() == 'k') {
+                    robotStep += "h8f8";
+                } else if ((from + to).equals("e8c8") && ChessUtils.chessboard[originLogicPosition[0]][originLogicPosition[1]].getChess().getChessType() == 'k') {
+                    robotStep += "a8d8";
+                }
+            } else {
+                robotStep = null;
+            }
+
         } catch (InterruptedException | ExecutionException | JSONException e) {
             e.printStackTrace();
         }
         return robotStep;
     }
 
-    public void doRobotChessStep(String robotStep) {
-        char[] originChessPosition = {robotStep.charAt(0), robotStep.charAt(1)};
-        char[] targetChessPosition = {robotStep.charAt(2), robotStep.charAt(3)};
+    public void doRobotChessStep(String robotStep, String playerStep) {
+        if (robotStep != null) {
+            for (int i = 0; i < robotStep.length(); i += 4) {
+                char[] originChessPosition = {robotStep.charAt(i), robotStep.charAt(i + 1)};
+                char[] targetChessPosition = {robotStep.charAt(i + 2), robotStep.charAt(i + 3)};
 
-        int[] targetLogicPosition = ChessUtils.chessPosition2LogicPosition(targetChessPosition);
-        if (ChessUtils.chessboard[targetLogicPosition[0]][targetLogicPosition[1]].getChess() != null) {
-            int[] emptyChessboardBowlLogicPosition = ChessUtils.findEmptyChessboardBowl();
-            char[] emptyChessboardBowlChessPosition = ChessUtils.logicPosition2ChessPosition(emptyChessboardBowlLogicPosition);
-            String from = String.valueOf(targetChessPosition).toUpperCase();
-            String to = String.valueOf(emptyChessboardBowlChessPosition).toUpperCase();
-            Log.e(TAG, "Move " + from + " to chessboardBowl " + to);
-            moveSystem.moveA2B(ProjectSetting.INTERNATIONAL_CHESS, from, ProjectSetting.INTERNATIONAL_CHESS_BOWL, to);
-        }
+                int[] targetLogicPosition = ChessUtils.chessPosition2LogicPosition(targetChessPosition);
+                if (ChessUtils.chessboard[targetLogicPosition[0]][targetLogicPosition[1]].getChess() != null) {
+                    int[] emptyChessboardBowlLogicPosition = ChessUtils.findEmptyChessboardBowl();
+                    char[] emptyChessboardBowlChessPosition = ChessUtils.logicPosition2ChessPosition(emptyChessboardBowlLogicPosition);
+                    String from = String.valueOf(targetChessPosition).toUpperCase();
+                    String to = String.valueOf(emptyChessboardBowlChessPosition).toUpperCase();
+                    Log.e(TAG, "Move " + from + " to chessboardBowl " + to);
+                    moveSystem.moveA2B(ProjectSetting.INTERNATIONAL_CHESS, from, ProjectSetting.INTERNATIONAL_CHESS_BOWL, to);
+                }
 
-        String from = String.valueOf(originChessPosition).toUpperCase();
-        String to = String.valueOf(targetChessPosition).toUpperCase();
+                String from = String.valueOf(originChessPosition).toUpperCase();
+                String to = String.valueOf(targetChessPosition).toUpperCase();
+                Log.e(TAG, "Move " + from + " to " + to);
+                moveSystem.moveA2B(ProjectSetting.INTERNATIONAL_CHESS, from, ProjectSetting.INTERNATIONAL_CHESS, to);
+            }
+        } else {
+            if (playerStep != null) {
+                for (int i = 0; i < playerStep.length(); i += 4) {
+                    char[] originChessPosition = {playerStep.charAt(i + 2), playerStep.charAt(i + 3)};
+                    char[] targetChessPosition = {playerStep.charAt(i), playerStep.charAt(i + 1)};
 
-        boolean needMore = false;
-        String fromMore = "";
-        String toMore = "";
+                    String from = String.valueOf(originChessPosition).toUpperCase();
+                    String to = String.valueOf(targetChessPosition).toUpperCase();
+                    Log.e(TAG, "Recover: Move " + from + " to " + to);
+                    moveSystem.moveA2B(ProjectSetting.INTERNATIONAL_CHESS, from, ProjectSetting.INTERNATIONAL_CHESS, to);
 
-        int[] originLogicPosition = ChessUtils.chessPosition2LogicPosition(originChessPosition);
-        if ((from + to).equals("E8G8") && ChessUtils.chessboard[originLogicPosition[0]][originLogicPosition[1]].getChess().getChessType() == 'k') {
-            fromMore = "H8";
-            toMore = "F8";
-            needMore = true;
-        } else if ((from + to).equals("E8C8") && ChessUtils.chessboard[originLogicPosition[0]][originLogicPosition[1]].getChess().getChessType() == 'k') {
-            fromMore = "A8";
-            toMore = "D8";
-            needMore = true;
-        }
-
-        Log.e(TAG, "Move " + from + " to " + to);
-        moveSystem.moveA2B(ProjectSetting.INTERNATIONAL_CHESS, from, ProjectSetting.INTERNATIONAL_CHESS, to);
-
-        if (needMore) {
-            Log.e(TAG, "Move " + from + " to " + to);
-            moveSystem.moveA2B(ProjectSetting.INTERNATIONAL_CHESS, fromMore, ProjectSetting.INTERNATIONAL_CHESS, toMore);
+                    int[] originLogicPosition = ChessUtils.chessPosition2LogicPosition(originChessPosition);
+                    Chess neededAliveChess = ChessUtils.preChessboard[originLogicPosition[0]][originLogicPosition[1]].getChess();
+                    if (neededAliveChess != null) {
+                        int[] neededAliveChessLogicPosition = ChessUtils.findSpecialChessFromChessboardBowl(neededAliveChess.getChessType());
+                        char[] neededAliveChessChessPosition = ChessUtils.logicPosition2ChessPosition(neededAliveChessLogicPosition);
+                        String fromChessBowl = String.valueOf(neededAliveChessChessPosition).toUpperCase();
+                        Log.e(TAG, "Recover: Move chessboardBowl " + fromChessBowl + " to " + from);
+                        moveSystem.moveA2B(ProjectSetting.INTERNATIONAL_CHESS_BOWL, fromChessBowl, ProjectSetting.INTERNATIONAL_CHESS, from);
+                    }
+                }
+            }
         }
     }
 }

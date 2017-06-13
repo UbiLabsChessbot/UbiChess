@@ -376,4 +376,65 @@ public class ChessDetection {
             }
         }
     }
+
+    /* Lab*/
+    public Mat lab(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+//        return inputFrame.rgba();
+
+        Mat rgbaImg = inputRgbaImg;
+        inputFrame.rgba().copyTo(rgbaImg);
+
+        zeroMat.copyTo(tmpMat);
+        Mat rgbImg = tmpMat;
+        Imgproc.cvtColor(rgbaImg, rgbImg, Imgproc.COLOR_RGBA2RGB);
+        Mat hsvImg = tmpMat;
+        Imgproc.cvtColor(rgbImg, hsvImg, Imgproc.COLOR_RGB2HSV);
+
+        zeroMat.copyTo(tmpMat2);
+        zeroMat.copyTo(tmpMat3);
+        zeroMat.copyTo(tmpMat4);
+        Mat hsvSplit1 = tmpMat2;
+        Mat hsvSplit2 = tmpMat3;
+        Mat hsvSplit3 = tmpMat4;
+        List<Mat> hsvSplits = new ArrayList<>(Arrays.asList(hsvSplit1, hsvSplit2, hsvSplit3));
+
+        Core.split(hsvImg, hsvSplits);
+        Imgproc.equalizeHist(hsvSplits.get(2), hsvSplits.get(2));
+        Core.merge(hsvSplits, hsvImg);
+
+        Mat labelImg = tmpMat;
+        Core.inRange(hsvImg, new Scalar(35, 65, 50), new Scalar(99, 255, 255), labelImg);
+        Imgproc.morphologyEx(labelImg, labelImg, MORPH_OPEN, morphologyExElement);
+        Imgproc.morphologyEx(labelImg, labelImg, MORPH_CLOSE, morphologyExElement);
+        return labelImg;
+
+
+//        Mat rgbaImg = inputRgbaImg;
+//        inputFrame.rgba().copyTo(rgbaImg);
+//
+//        Mat grayImg = tmpMat;
+//        inputFrame.gray().copyTo(grayImg);
+//
+//        zeroMatOfPoint3f.copyTo(tmpMatOfPoint3f);
+//        MatOfPoint3f circleMat = tmpMatOfPoint3f;
+//
+//        Imgproc.HoughCircles(grayImg, circleMat, Imgproc.CV_HOUGH_GRADIENT, 1, 100, 200, 20, 40, 50);
+//        List<Point3> circles = circleMat.toList();
+//
+//        Mat chessImg = tmpMat2;
+//        zeroChessMat.copyTo(chessImg);
+//
+//        ChessUtils.chess = new Chess[32];
+//        if (circles.size() > 0) {
+//            for (int cnt = 0; cnt < circles.size() && cnt < 32; cnt++) {
+//                double x = circles.get(cnt).x;
+//                double y = circles.get(cnt).y;
+//                double z = circles.get(cnt).z;
+//
+//                Core.circle(rgbaImg, new Point(x, y), (int) z, new Scalar(255), 5);
+//                Log.e(TAG,"z: " + z);
+//            }
+//        }
+//        return rgbaImg;
+    }
 }

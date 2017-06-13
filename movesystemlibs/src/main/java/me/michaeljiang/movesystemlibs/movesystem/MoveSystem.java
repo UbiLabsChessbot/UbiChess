@@ -519,7 +519,7 @@ public class MoveSystem {
 
         //Step Two      回到复位的位置
         MoveData stepTwo = new MoveData();
-        MotoPosition resetPosition = readArm7BotData(reset, false, this.isCatch,false);
+        MotoPosition resetPosition = readArm7BotData(reset, false, this.isCatch, false);
         TransformResult transformResult = arm7Bot.toStandMotoByte(resetPosition);
         stepTwo.setTransformResult(transformResult);
         moveSystemSend.addMoveData(stepTwo);
@@ -552,17 +552,17 @@ public class MoveSystem {
         stepThree.setConveyerBandData(conveyerBandCommand);
 
         //计算机械手位移
-        MotoPosition prePosition = readArm7BotData(targetChess.getMotoPosition(), true, this.isCatch,false);
+        MotoPosition prePosition = readArm7BotData(targetChess.getMotoPosition(), true, this.isCatch, false);
         TransformResult stepThreeCommad = arm7Bot.toStandMotoByte(prePosition);
         stepThree.setTransformResult(stepThreeCommad);
         moveSystemSend.addMoveData(stepThree);
 
-        prePosition = readArm7BotData(targetChess.getMotoPosition(), true, isCatch,false);
+        prePosition = readArm7BotData(targetChess.getMotoPosition(), true, isCatch, false);
         armState.setTransformResult(arm7Bot.toStandMotoByte(prePosition));//设置原始的位置为isCatch
 
         //StepFourth
         MoveData stepFourth = new MoveData();
-        MotoPosition truePosition = readArm7BotData(targetChess.getMotoPosition(), false, this.isCatch,false);
+        MotoPosition truePosition = readArm7BotData(targetChess.getMotoPosition(), false, this.isCatch, false);
         TransformResult stepFourthCommad = arm7Bot.toStandMotoByte(truePosition);
         stepFourth.setTransformResult(stepFourthCommad);
         moveSystemSend.addMoveData(stepFourth);
@@ -570,7 +570,7 @@ public class MoveSystem {
         //StepFive
         this.isCatch = isCatch;
         MoveData stepFive = new MoveData();
-        MotoPosition finishPosition = readArm7BotData(targetChess.getMotoPosition(), false, this.isCatch,true);
+        MotoPosition finishPosition = readArm7BotData(targetChess.getMotoPosition(), false, this.isCatch, true);
         stepFive.setTransformResult(arm7Bot.toStandMotoByte(finishPosition));
         moveSystemSend.addMoveData(stepFive);
 
@@ -581,16 +581,16 @@ public class MoveSystem {
     /**
      * 根据条件返回调整和都舵机值
      *
-     * @param data           目标的舵机值
-     * @param isReadyPosition 是否为准备位置
+     * @param data             目标的舵机值
+     * @param isReadyPosition  是否为准备位置
      * @param isFinishPosition 是否为最终位置
-     * @param isCatch        当前状态是否在抓取
+     * @param isCatch          当前状态是否在抓取
      * @return 返回舵机值
      * @State Doing
      * @Version 1.0
      * @User MichaelJiang
      */
-    private MotoPosition readArm7BotData(MotoPosition data, boolean isReadyPosition, boolean isCatch,boolean isFinishPosition) {
+    private MotoPosition readArm7BotData(MotoPosition data, boolean isReadyPosition, boolean isCatch, boolean isFinishPosition) {
         MotoPosition readData = new MotoPosition();
         readData.setMotoData(data.getAngleInts());
         //如果是抓的则设置Moto7为0
@@ -603,9 +603,9 @@ public class MoveSystem {
         if (isReadyPosition)
             readData.setMoto3(readData.getMoto3() - 15);
 
-        if(isFinishPosition){
+        if (isFinishPosition) {
             int temp = readData.getMoto5();
-            readData.setMoto5(temp+10);
+            readData.setMoto5(temp + 10);
         }
         return readData;
     }
