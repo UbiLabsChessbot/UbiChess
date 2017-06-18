@@ -8,6 +8,8 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
+import java.util.List;
+
 import me.michaeljiang.movesystemlibs.movesystem.component.ComponentSetting;
 import me.michaeljiang.movesystemlibs.movesystem.component.arm7bot.Arm7Bot;
 import me.michaeljiang.movesystemlibs.movesystem.component.arm7bot.model.MotoPosition;
@@ -198,12 +200,15 @@ public class MoveSystem {
      * @Version 1.0
      * @User MichaelJiang
      */
-    public boolean initSystem() {
+    public boolean initSystem(List<Object> args) {
+        final List<Object> processControl = args;
+
         Handler uiHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 if (msg.what == ComponentSetting.MQTT_STATE_CONNECTED) {
                     mqtt.subTopic(MoveSystemSetting.TAG_RECEIVER_FROM_TRANSPORTER);
+                    mqtt.subTopic(MoveSystemSetting.TAG_RECEIVER_FROM_CHESS_BELL);
                     Log.d(TAG + ":MQTT", "连接成功");
                 } else if (msg.what == ComponentSetting.MQTT_STATE_LOST) {
                     Log.d(TAG, "连接丢失，进行重连");
@@ -219,17 +224,37 @@ public class MoveSystem {
                     Log.d(TAG, (String) msg.obj);
                 } else if (msg.what == ComponentSetting.MQTT_STATE_RECEIVE) {
                     //MqttReceiver
-                    Log.d(TAG, (String) msg.obj);
-                    try {
-                        ConveyerReceiver myReceiver = moveGson.fromJson((String) msg.obj, ConveyerReceiver.class);
-                        conveyerBand.setPosition(myReceiver.getPlatformState().getPlatformPosition());
-                        conveyerBand.setMove(myReceiver.getPlatformState().isMove());
-                        if (myReceiver.getCode() == 2) {
-                            moveSystemSend.setCanArmMove(true);
+                    Bundle data = msg.getData();
+                    String topic = data.getString("topic");
+                    if (topic != null) {
+                        if (topic.equals(MoveSystemSetting.TAG_RECEIVER_FROM_CHESS_BELL)) {
+                            if (processControl != null) {
+                                processControl.set(0, Integer.valueOf(data.getString("obj")));
+                                switch ((int) processControl.get(0)) {
+                                    case 0:
+                                        processControl.set(1, ((int) processControl.get(1) + 1) % 2);
+                                        break;
+                                    case 4:
+                                        processControl.set(2, ((int) processControl.get(2) + 1) % 2);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                processControl.set(3, true);
+                            }
+                        } else if (topic.equals(MoveSystemSetting.TAG_RECEIVER_FROM_TRANSPORTER)) {
+                            try {
+                                ConveyerReceiver myReceiver = moveGson.fromJson(data.getString("obj"), ConveyerReceiver.class);
+                                conveyerBand.setPosition(myReceiver.getPlatformState().getPlatformPosition());
+                                conveyerBand.setMove(myReceiver.getPlatformState().isMove());
+                                if (myReceiver.getCode() == 2) {
+                                    moveSystemSend.setCanArmMove(true);
+                                }
+                                Log.d(TAG, conveyerBand.toString());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
-                        Log.d(TAG, conveyerBand.toString());
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
                 } else if (msg.what == ComponentSetting.BLUETOOTH_MESSAGE_RECEIVER) {
                     //BluetoothReceiver

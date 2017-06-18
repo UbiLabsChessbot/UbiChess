@@ -16,6 +16,7 @@ import org.ubilabs.ubichess.control.VoiceHint;
 import org.ubilabs.ubichess.modle.Chess;
 import org.ubilabs.ubichess.modle.Chessboard;
 import org.ubilabs.ubichess.uitl.ChessUtils;
+import org.ubilabs.ubichess.uitl.CommandUtils;
 import org.ubilabs.ubichess.uitl.PermissionUtils;
 
 import android.Manifest;
@@ -33,6 +34,9 @@ import android.widget.Button;
 import android.widget.Toast;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import me.michaeljiang.movesystemlibs.movesystem.MoveSystem;
 
 
@@ -48,10 +52,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
 //    private SeekBar lEdit;
 //    private int generateCnt = 0;
 
-    private int processType;
-    private boolean doSignal;
-    private int labStep;
-    private int playStep;
+    private List<Object> processControl;
 
     private MoveSystem moveSystem;
 
@@ -75,6 +76,12 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
 
         Context context = this;
         voiceHint = new VoiceHint(context);
+
+        processControl = new ArrayList<>();
+        processControl.add(CommandUtils.PROCESS_TYPE, -1);
+        processControl.add(CommandUtils.LAB_STEP, 0);
+        processControl.add(CommandUtils.PLAY_STEP, -1);
+        processControl.add(CommandUtils.DO_SIGNAL, false);
 
 //        hEdit = (SeekBar) findViewById(R.id.hEdit);
 //        hEdit.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -116,14 +123,13 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
 //        });
 //        lEdit.setProgress(46);
 
-        labStep = 0;
         Button labButton = (Button) findViewById(R.id.labButton);
         labButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                labStep = (labStep + 1) % 2;
-                processType = 0;
-                doSignal = true;
+                processControl.set(CommandUtils.LAB_STEP, ((int) processControl.get(CommandUtils.LAB_STEP) + 1) % 2);
+                processControl.set(CommandUtils.PROCESS_TYPE, 0);
+                processControl.set(CommandUtils.DO_SIGNAL, true);
             }
         });
 
@@ -131,8 +137,8 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         resetHardwareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                processType = 1;
-                doSignal = true;
+                processControl.set(CommandUtils.PROCESS_TYPE, 1);
+                processControl.set(CommandUtils.DO_SIGNAL, true);
             }
         });
 
@@ -140,8 +146,8 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         initButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                processType = 2;
-                doSignal = true;
+                processControl.set(CommandUtils.PROCESS_TYPE, 2);
+                processControl.set(CommandUtils.DO_SIGNAL, true);
             }
         });
 
@@ -159,28 +165,23 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         resetChessButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                processType = 3;
-                doSignal = true;
+                processControl.set(CommandUtils.PROCESS_TYPE, 3);
+                processControl.set(CommandUtils.DO_SIGNAL, true);
             }
         });
 
-        playStep = -1;
         final String[] stepList = {"玩家走", "机械臂走"};
-
         final Button playChessButton = (Button) findViewById(R.id.playChessButton);
         playChessButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playStep = (playStep + 1) % stepList.length;
-                playChessButton.setText(stepList[playStep]);
-                processType = 4;
-                doSignal = true;
+                processControl.set(CommandUtils.PLAY_STEP, ((int) processControl.get(CommandUtils.PLAY_STEP) + 1) % 2);
+                playChessButton.setText(stepList[(int) processControl.get(CommandUtils.PLAY_STEP)]);
+                processControl.set(CommandUtils.PROCESS_TYPE, 4);
+                processControl.set(CommandUtils.DO_SIGNAL, true);
             }
         });
 
-
-        processType = -1;
-        doSignal = false;
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
                 || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
@@ -192,7 +193,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
 
         moveSystem = new MoveSystem(this);
         Log.e(TAG, "Init MoveSystem Start!");
-        moveSystem.initSystem();
+        moveSystem.initSystem(processControl);
         moveSystem.connect();
 
         chessLogic = new ChessLogic(moveSystem);
@@ -248,11 +249,11 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
 
         /* Process*/
         Mat ret = inputFrame.rgba();
-        if (doSignal) {
-            switch (processType) {
+        if ((boolean) processControl.get(CommandUtils.DO_SIGNAL)) {
+            switch ((int) processControl.get(CommandUtils.PROCESS_TYPE)) {
                 //实验性方法
                 case 0:
-                    switch (labStep) {
+                    switch ((int) processControl.get(CommandUtils.LAB_STEP)) {
                         case 0:
                             break;
                         case 1:
@@ -264,7 +265,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                 case 1:
                     if (moveSystem.isConnect()) {
                         moveSystem.reset();
-                        doSignal = false;
+                        processControl.set(CommandUtils.DO_SIGNAL, false);
                     }
                     break;
                 //初始化
@@ -278,7 +279,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                     chessDetection.detectChessBoardBowl(inputFrame);
                     if (ChessUtils.chessboard[7][7] != null && ChessUtils.chessboardKeyPoints[3] != null && ChessUtils.chessboardBowl[7][3] != null && ChessUtils.chessboardBowlKeyPoints[3] != null) {
                         voiceHint.playVoice(R.raw.welcome);
-                        doSignal = false;
+                        processControl.set(CommandUtils.DO_SIGNAL, false);
                     }
                     break;
                 //码棋
@@ -290,18 +291,18 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                         chessLogic.clearStartingPoint();
                         moveSystem.move2Zero();
                         chessLogic.requireResetChess();
-                        doSignal = false;
+                        processControl.set(CommandUtils.DO_SIGNAL, false);
                     }
                     break;
                 //下棋
                 case 4:
-                    switch (playStep) {
+                    switch ((int) processControl.get(CommandUtils.PLAY_STEP)) {
                         //保存旧棋盘状态
                         case 0:
                             if (chessDetection.detectChessMen(inputFrame)) {
                                 voiceHint.playVoice(R.raw.yourturn);
                                 ChessUtils.preChessboard = chessLogic.saveCurrentChessboard();
-                                doSignal = false;
+                                processControl.set(CommandUtils.DO_SIGNAL, false);
                             }
                             break;
                         //识别棋子
@@ -320,7 +321,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                                 }
                                 chessLogic.doRobotChessStep(robotStep, playerStep);
                                 moveSystem.move2Zero();
-                                doSignal = false;
+                                processControl.set(CommandUtils.DO_SIGNAL, false);
                             }
                             break;
                     }
