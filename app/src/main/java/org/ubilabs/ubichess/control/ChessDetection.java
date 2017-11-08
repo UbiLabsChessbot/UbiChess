@@ -86,7 +86,7 @@ public class ChessDetection {
         zeroMatOfPoint3f.copyTo(tmpMatOfPoint3f);
         MatOfPoint3f circleMat = tmpMatOfPoint3f;
 
-        Imgproc.HoughCircles(grayImg, circleMat, Imgproc.CV_HOUGH_GRADIENT, 1, 100, 200, 20, 40, 50);
+        Imgproc.HoughCircles(grayImg, circleMat, Imgproc.CV_HOUGH_GRADIENT, 1, 100, 200, 20, 35, 50);
         List<Point3> circles = circleMat.toList();
 
         Mat chessImg = tmpMat2;
@@ -288,7 +288,7 @@ public class ChessDetection {
         Core.merge(hsvSplits, hsvImg);
 
         Mat labelImg = tmpMat;
-        Core.inRange(hsvImg, new Scalar(160, 110, 80), new Scalar(180, 255, 255), labelImg);
+        Core.inRange(hsvImg, new Scalar(160, 100, 85), new Scalar(180, 255, 255), labelImg);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_OPEN, morphologyExElement);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_CLOSE, morphologyExElement);
 
@@ -403,7 +403,7 @@ public class ChessDetection {
         Core.merge(hsvSplits, hsvImg);
 
         Mat labelImg = tmpMat;
-        Core.inRange(hsvImg, new Scalar(35, 65, 50), new Scalar(99, 255, 255), labelImg);
+        Core.inRange(hsvImg, new Scalar(160, 100, 85), new Scalar(180, 255, 255), labelImg);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_OPEN, morphologyExElement);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_CLOSE, morphologyExElement);
         return labelImg;
@@ -418,7 +418,7 @@ public class ChessDetection {
 //        zeroMatOfPoint3f.copyTo(tmpMatOfPoint3f);
 //        MatOfPoint3f circleMat = tmpMatOfPoint3f;
 //
-//        Imgproc.HoughCircles(grayImg, circleMat, Imgproc.CV_HOUGH_GRADIENT, 1, 100, 200, 20, 40, 50);
+//        Imgproc.HoughCircles(grayImg, circleMat, Imgproc.CV_HOUGH_GRADIENT, 1, 100, 200, 20, 35, 50);
 //        List<Point3> circles = circleMat.toList();
 //
 //        Mat chessImg = tmpMat2;

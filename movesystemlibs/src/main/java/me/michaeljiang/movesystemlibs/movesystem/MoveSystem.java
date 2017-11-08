@@ -97,26 +97,26 @@ public class MoveSystem {
      * 测试用数据
      **/
     //internation_chess
-    MotoPosition Internation_1 = new MotoPosition(new int[]{85, 44, 99, 90, 58, 90, 70});
-    MotoPosition Internation_2 = new MotoPosition(new int[]{85, 63, 111, 90, 43, 90, 70});
-    MotoPosition Internation_3 = new MotoPosition(new int[]{84, 83, 115, 90, 40, 90, 70});
-    MotoPosition Internation_4 = new MotoPosition(new int[]{83, 104, 115, 90, 40, 90, 70});
+    MotoPosition Internation_1 = new MotoPosition(new int[]{ 84, 39,100, 90, 50, 90, 70});
+    MotoPosition Internation_2 = new MotoPosition(new int[]{ 84, 60,107, 90, 46, 90, 70});
+    MotoPosition Internation_3 = new MotoPosition(new int[]{ 83, 80,112, 90, 40, 90, 70});
+    MotoPosition Internation_4 = new MotoPosition(new int[]{ 82,104,110, 90, 44, 90, 70});
 
-    MotoPosition Internation_5 = new MotoPosition(new int[]{138, 62, 114, 90, 37, 90, 70});
-    MotoPosition Internation_6 = new MotoPosition(new int[]{143, 74, 116, 90, 37, 90, 70});
-    MotoPosition Internation_7 = new MotoPosition(new int[]{149, 85, 117, 90, 37, 90, 70});
-    MotoPosition Internation_8 = new MotoPosition(new int[]{156, 94, 118, 90, 37, 90, 70});
+    MotoPosition Internation_5 = new MotoPosition(new int[]{132, 72, 109, 90, 44, 90, 70});
+    MotoPosition Internation_6 = new MotoPosition(new int[]{138, 86, 110, 90, 43, 90, 70});
+    MotoPosition Internation_7 = new MotoPosition(new int[]{143, 98, 109, 90, 46, 90, 70});
+    MotoPosition Internation_8 = new MotoPosition(new int[]{151,114, 108, 90, 46, 90, 70});
 
     //internation_chess_bowl
-    MotoPosition Internation_Bow_1 = new MotoPosition(new int[]{114, 40, 98, 90, 58, 90, 70});
-    MotoPosition Internation_Bow_2 = new MotoPosition(new int[]{116, 55, 109, 90, 45, 90, 75});
-    MotoPosition Internation_Bow_3 = new MotoPosition(new int[]{118, 68, 116, 90, 38, 90, 70});
-    MotoPosition Internation_Bow_4 = new MotoPosition(new int[]{121, 82, 119, 90, 36, 90, 70});
+    MotoPosition Internation_Bow_1 = new MotoPosition(new int[]{113, 33,  102, 90, 45, 90, 70});
+    MotoPosition Internation_Bow_2 = new MotoPosition(new int[]{114, 51, 103, 90, 49, 90, 70});
+    MotoPosition Internation_Bow_3 = new MotoPosition(new int[]{116, 69, 109, 90, 44, 90, 70});
+    MotoPosition Internation_Bow_4 = new MotoPosition(new int[]{119, 84, 114, 90, 40, 90, 70});
 
-    MotoPosition Internation_Bow_5 = new MotoPosition(new int[]{140, 61, 112, 90, 43, 90, 70});
-    MotoPosition Internation_Bow_6 = new MotoPosition(new int[]{145, 70, 115, 90, 39, 90, 70});
-    MotoPosition Internation_Bow_7 = new MotoPosition(new int[]{150, 79, 118, 90, 36, 90, 70});
-    MotoPosition Internation_Bow_8 = new MotoPosition(new int[]{156, 86, 119, 90, 36, 90, 70});
+    MotoPosition Internation_Bow_5 = new MotoPosition(new int[]{135, 70, 110, 90, 43, 90, 70});
+    MotoPosition Internation_Bow_6 = new MotoPosition(new int[]{140, 74, 122, 90, 23, 90, 70});
+    MotoPosition Internation_Bow_7 = new MotoPosition(new int[]{146, 93, 110, 90, 46, 90, 70});
+    MotoPosition Internation_Bow_8 = new MotoPosition(new int[]{152,100, 112, 90, 42, 90, 70});
     //
     //
     MotoPosition reset = new MotoPosition(new int[]{90, 90, 65, 90, 90, 90, 70});
@@ -135,12 +135,13 @@ public class MoveSystem {
 
         //格子之间相差5.1cm
         double tempPositionA = 0;//cm
-        double tempPositionB = 37.5;//cm
+        double tempPositionB = 33.75;//cm
 
         //格子之间相差4.5cm
         double tempPositionC = 0;//cm
-        double tempPositionD = 15;//cm
+        double tempPositionD = 11.25;//cm
         //col=column 竖行row=row 横行
+
 
         for (int row = 0; row < 8; row++) {
             //按照循环依次为 A->B->C->D
@@ -628,9 +629,11 @@ public class MoveSystem {
         if (isReadyPosition)
             readData.setMoto3(readData.getMoto3() - 15);
 
-        if (isFinishPosition) {
-            int temp = readData.getMoto5();
-            readData.setMoto5(temp + 10);
+        if(isFinishPosition){
+            int tempMoto5 = readData.getMoto5();
+            int tempMOto3 = readData.getMoto3();
+            readData.setMoto5(tempMoto5+12);
+            readData.setMoto3((tempMOto3+1));
         }
         return readData;
     }

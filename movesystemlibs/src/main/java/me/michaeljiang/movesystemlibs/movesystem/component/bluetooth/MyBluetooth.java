@@ -37,7 +37,7 @@ public class MyBluetooth {
 
     /**蓝牙变量**/
     public  String BlueToothName = "null";
-    public  String BlueToothAddress = "98:D3:31:30:06:E9";
+    public  String BlueToothAddress = "98:D3:32:70:57:B8";
     public  int BlueToothType = -1;
 
     /**系统类**/

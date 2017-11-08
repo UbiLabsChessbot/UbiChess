@@ -315,12 +315,24 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                                 String robotStep = chessLogic.requireRobotChessStep(playerStep);
                                 if (robotStep != null) {
                                     Log.e(TAG, "Robot Step: " + robotStep);
+                                    switch (robotStep) {
+                                        case "GGWIN":
+                                            voiceHint.playVoice(R.raw.win);
+                                            break;
+                                        case "GGLOSE":
+                                            voiceHint.playVoice(R.raw.lose);
+                                            break;
+                                        default:
+                                            chessLogic.doRobotChessStep(robotStep, playerStep);
+                                            moveSystem.move2Zero();
+                                            break;
+                                    }
                                 } else {
                                     Log.e(TAG, "Wrong Step!");
                                     voiceHint.playVoice(R.raw.wrong);
+                                    chessLogic.doRobotChessStep(null, playerStep);
+                                    moveSystem.move2Zero();
                                 }
-                                chessLogic.doRobotChessStep(robotStep, playerStep);
-                                moveSystem.move2Zero();
                                 processControl.set(CommandUtils.DO_SIGNAL, false);
                             }
                             break;

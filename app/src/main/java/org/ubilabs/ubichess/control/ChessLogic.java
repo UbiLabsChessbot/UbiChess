@@ -197,10 +197,10 @@ public class ChessLogic {
         return start + end + start2 + end2;
     }
 
-    public void requireResetChess(){
+    public void requireResetChess() {
         ChessStepRequest requestChessStep = new ChessStepRequest();
         requestChessStep.execute("123");
-        Log.e(TAG,"Reset Chess");
+        Log.e(TAG, "Reset Chess");
     }
 
     public String requireRobotChessStep(String playerStep) {
@@ -225,6 +225,10 @@ public class ChessLogic {
                 } else if ((from + to).equals("e8c8") && ChessUtils.chessboard[originLogicPosition[0]][originLogicPosition[1]].getChess().getChessType() == 'k') {
                     robotStep += "a8d8";
                 }
+            } else if(code == 2){
+                robotStep = "GGWIN";
+            } else if (code == 3) {
+                robotStep = "GGLOSE";
             } else {
                 robotStep = null;
             }
