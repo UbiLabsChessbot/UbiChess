@@ -1,7 +1,7 @@
-package org.ubilabs.ubichess.uitl;
+package me.michaeljiang.movesystemlibs.movesystem.setting;
 
 
-public class CommandUtils {
+public class ProcessControlSetting {
     public static final int PROCESS_TYPE = 0;
     public static final int LAB_STEP = 1;
     public static final int PLAY_STEP = 2;

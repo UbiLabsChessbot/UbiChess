@@ -24,6 +24,8 @@ import me.michaeljiang.movesystemlibs.movesystem.component.conveyerband.model.Co
 import me.michaeljiang.movesystemlibs.movesystem.component.mqtt.MyMqtt;
 import me.michaeljiang.movesystemlibs.movesystem.model.Chess;
 import me.michaeljiang.movesystemlibs.movesystem.model.MoveData;
+import me.michaeljiang.movesystemlibs.movesystem.setting.ChessStepSetting;
+import me.michaeljiang.movesystemlibs.movesystem.setting.ProcessControlSetting;
 import me.michaeljiang.movesystemlibs.movesystem.setting.MoveSystemSetting;
 import me.michaeljiang.movesystemlibs.movesystem.setting.ProjectSetting;
 import me.michaeljiang.movesystemlibs.movesystem.thread.MoveSystemSend;
@@ -97,26 +99,26 @@ public class MoveSystem {
      * 测试用数据
      **/
     //internation_chess
-    MotoPosition Internation_1 = new MotoPosition(new int[]{ 84, 39,100, 90, 50, 90, 70});
-    MotoPosition Internation_2 = new MotoPosition(new int[]{ 84, 60,107, 90, 46, 90, 70});
-    MotoPosition Internation_3 = new MotoPosition(new int[]{ 83, 80,112, 90, 40, 90, 70});
-    MotoPosition Internation_4 = new MotoPosition(new int[]{ 82,104,110, 90, 44, 90, 70});
+    MotoPosition Internation_1 = new MotoPosition(new int[]{84, 39, 102, 90, 50, 90, 70});
+    MotoPosition Internation_2 = new MotoPosition(new int[]{84, 60, 109, 90, 46, 90, 70});
+    MotoPosition Internation_3 = new MotoPosition(new int[]{83, 80, 114, 90, 40, 90, 70});
+    MotoPosition Internation_4 = new MotoPosition(new int[]{82, 104, 112, 90, 44, 90, 70});
 
-    MotoPosition Internation_5 = new MotoPosition(new int[]{132, 72, 109, 90, 44, 90, 70});
-    MotoPosition Internation_6 = new MotoPosition(new int[]{138, 86, 110, 90, 43, 90, 70});
-    MotoPosition Internation_7 = new MotoPosition(new int[]{143, 98, 109, 90, 46, 90, 70});
-    MotoPosition Internation_8 = new MotoPosition(new int[]{151,114, 108, 90, 46, 90, 70});
+    MotoPosition Internation_5 = new MotoPosition(new int[]{132, 72, 111, 90, 44, 90, 70});
+    MotoPosition Internation_6 = new MotoPosition(new int[]{138, 86, 112, 90, 43, 90, 70});
+    MotoPosition Internation_7 = new MotoPosition(new int[]{143, 98, 111, 90, 46, 90, 70});
+    MotoPosition Internation_8 = new MotoPosition(new int[]{151, 114, 108, 90, 49, 90, 70});
 
     //internation_chess_bowl
-    MotoPosition Internation_Bow_1 = new MotoPosition(new int[]{113, 33,  102, 90, 45, 90, 70});
-    MotoPosition Internation_Bow_2 = new MotoPosition(new int[]{114, 51, 103, 90, 49, 90, 70});
-    MotoPosition Internation_Bow_3 = new MotoPosition(new int[]{116, 69, 109, 90, 44, 90, 70});
-    MotoPosition Internation_Bow_4 = new MotoPosition(new int[]{119, 84, 114, 90, 40, 90, 70});
+    MotoPosition Internation_Bow_1 = new MotoPosition(new int[]{113, 33, 104, 90, 45, 90, 70});
+    MotoPosition Internation_Bow_2 = new MotoPosition(new int[]{114, 51, 105, 90, 49, 90, 70});
+    MotoPosition Internation_Bow_3 = new MotoPosition(new int[]{116, 69, 111, 90, 44, 90, 70});
+    MotoPosition Internation_Bow_4 = new MotoPosition(new int[]{119, 84, 116, 90, 40, 90, 70});
 
-    MotoPosition Internation_Bow_5 = new MotoPosition(new int[]{135, 70, 110, 90, 43, 90, 70});
-    MotoPosition Internation_Bow_6 = new MotoPosition(new int[]{140, 74, 122, 90, 23, 90, 70});
-    MotoPosition Internation_Bow_7 = new MotoPosition(new int[]{146, 93, 110, 90, 46, 90, 70});
-    MotoPosition Internation_Bow_8 = new MotoPosition(new int[]{152,100, 112, 90, 42, 90, 70});
+    MotoPosition Internation_Bow_5 = new MotoPosition(new int[]{135, 70, 112, 90, 43, 90, 70});
+    MotoPosition Internation_Bow_6 = new MotoPosition(new int[]{140, 74, 122, 90, 26, 90, 70});
+    MotoPosition Internation_Bow_7 = new MotoPosition(new int[]{146, 93, 110, 90, 49, 90, 70});
+    MotoPosition Internation_Bow_8 = new MotoPosition(new int[]{152, 100, 114, 90, 42, 90, 70});
     //
     //
     MotoPosition reset = new MotoPosition(new int[]{90, 90, 65, 90, 90, 90, 70});
@@ -230,18 +232,18 @@ public class MoveSystem {
                     if (topic != null) {
                         if (topic.equals(MoveSystemSetting.TAG_RECEIVER_FROM_CHESS_BELL)) {
                             if (processControl != null) {
-                                processControl.set(0, Integer.valueOf(data.getString("obj")));
-                                switch ((int) processControl.get(0)) {
-                                    case 0:
-                                        processControl.set(1, ((int) processControl.get(1) + 1) % 2);
+                                processControl.set(ProcessControlSetting.PROCESS_TYPE, Integer.valueOf(data.getString("obj")));
+                                switch ((int) processControl.get(ProcessControlSetting.PROCESS_TYPE)) {
+                                    case ChessStepSetting.LAB_STEP:
+                                        processControl.set(ProcessControlSetting.LAB_STEP, ((int) processControl.get(ProcessControlSetting.LAB_STEP) + 1) % 2);
                                         break;
-                                    case 4:
-                                        processControl.set(2, ((int) processControl.get(2) + 1) % 2);
+                                    case ChessStepSetting.PLAY_STEP:
+                                        processControl.set(ProcessControlSetting.PLAY_STEP, ((int) processControl.get(ProcessControlSetting.PLAY_STEP) + 1) % 2);
                                         break;
                                     default:
                                         break;
                                 }
-                                processControl.set(3, true);
+                                processControl.set(ProcessControlSetting.DO_SIGNAL, true);
                             }
                         } else if (topic.equals(MoveSystemSetting.TAG_RECEIVER_FROM_TRANSPORTER)) {
                             try {
@@ -629,11 +631,11 @@ public class MoveSystem {
         if (isReadyPosition)
             readData.setMoto3(readData.getMoto3() - 15);
 
-        if(isFinishPosition){
+        if (isFinishPosition) {
             int tempMoto5 = readData.getMoto5();
             int tempMOto3 = readData.getMoto3();
-            readData.setMoto5(tempMoto5+12);
-            readData.setMoto3((tempMOto3+1));
+            readData.setMoto5(tempMoto5 + 12);
+            readData.setMoto3((tempMOto3 + 1));
         }
         return readData;
     }

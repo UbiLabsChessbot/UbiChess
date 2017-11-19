@@ -176,7 +176,7 @@ public class ChessDetection {
         Core.merge(hsvSplits, hsvImg);
 
         Mat labelImg = tmpMat;
-        Core.inRange(hsvImg, new Scalar(100, 120, 110), new Scalar(124, 255, 255), labelImg);
+        Core.inRange(hsvImg, new Scalar(100, 110, 100), new Scalar(124, 255, 255), labelImg);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_OPEN, morphologyExElement);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_CLOSE, morphologyExElement);
 
@@ -288,7 +288,7 @@ public class ChessDetection {
         Core.merge(hsvSplits, hsvImg);
 
         Mat labelImg = tmpMat;
-        Core.inRange(hsvImg, new Scalar(160, 100, 85), new Scalar(180, 255, 255), labelImg);
+        Core.inRange(hsvImg, new Scalar(156, 110, 110), new Scalar(180, 255, 255), labelImg);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_OPEN, morphologyExElement);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_CLOSE, morphologyExElement);
 
@@ -403,7 +403,7 @@ public class ChessDetection {
         Core.merge(hsvSplits, hsvImg);
 
         Mat labelImg = tmpMat;
-        Core.inRange(hsvImg, new Scalar(160, 100, 85), new Scalar(180, 255, 255), labelImg);
+        Core.inRange(hsvImg, new Scalar(35, 35, 35), new Scalar(99, 255, 255), labelImg);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_OPEN, morphologyExElement);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_CLOSE, morphologyExElement);
         return labelImg;

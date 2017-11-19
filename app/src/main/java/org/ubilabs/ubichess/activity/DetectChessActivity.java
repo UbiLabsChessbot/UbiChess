@@ -16,7 +16,8 @@ import org.ubilabs.ubichess.control.VoiceHint;
 import org.ubilabs.ubichess.modle.Chess;
 import org.ubilabs.ubichess.modle.Chessboard;
 import org.ubilabs.ubichess.uitl.ChessUtils;
-import org.ubilabs.ubichess.uitl.CommandUtils;
+import me.michaeljiang.movesystemlibs.movesystem.setting.ProcessControlSetting;
+import me.michaeljiang.movesystemlibs.movesystem.setting.ChessStepSetting;
 import org.ubilabs.ubichess.uitl.PermissionUtils;
 
 import android.Manifest;
@@ -78,10 +79,10 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         voiceHint = new VoiceHint(context);
 
         processControl = new ArrayList<>();
-        processControl.add(CommandUtils.PROCESS_TYPE, -1);
-        processControl.add(CommandUtils.LAB_STEP, 0);
-        processControl.add(CommandUtils.PLAY_STEP, -1);
-        processControl.add(CommandUtils.DO_SIGNAL, false);
+        processControl.add(ProcessControlSetting.PROCESS_TYPE, -1);
+        processControl.add(ProcessControlSetting.LAB_STEP, 0);
+        processControl.add(ProcessControlSetting.PLAY_STEP, -1);
+        processControl.add(ProcessControlSetting.DO_SIGNAL, false);
 
 //        hEdit = (SeekBar) findViewById(R.id.hEdit);
 //        hEdit.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -127,9 +128,9 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         labButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                processControl.set(CommandUtils.LAB_STEP, ((int) processControl.get(CommandUtils.LAB_STEP) + 1) % 2);
-                processControl.set(CommandUtils.PROCESS_TYPE, 0);
-                processControl.set(CommandUtils.DO_SIGNAL, true);
+                processControl.set(ProcessControlSetting.LAB_STEP, ((int) processControl.get(ProcessControlSetting.LAB_STEP) + 1) % 2);
+                processControl.set(ProcessControlSetting.PROCESS_TYPE, 0);
+                processControl.set(ProcessControlSetting.DO_SIGNAL, true);
             }
         });
 
@@ -137,8 +138,8 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         resetHardwareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                processControl.set(CommandUtils.PROCESS_TYPE, 1);
-                processControl.set(CommandUtils.DO_SIGNAL, true);
+                processControl.set(ProcessControlSetting.PROCESS_TYPE, 1);
+                processControl.set(ProcessControlSetting.DO_SIGNAL, true);
             }
         });
 
@@ -146,8 +147,8 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         initButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                processControl.set(CommandUtils.PROCESS_TYPE, 2);
-                processControl.set(CommandUtils.DO_SIGNAL, true);
+                processControl.set(ProcessControlSetting.PROCESS_TYPE, 2);
+                processControl.set(ProcessControlSetting.DO_SIGNAL, true);
             }
         });
 
@@ -165,8 +166,8 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         resetChessButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                processControl.set(CommandUtils.PROCESS_TYPE, 3);
-                processControl.set(CommandUtils.DO_SIGNAL, true);
+                processControl.set(ProcessControlSetting.PROCESS_TYPE, 3);
+                processControl.set(ProcessControlSetting.DO_SIGNAL, true);
             }
         });
 
@@ -175,10 +176,10 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         playChessButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                processControl.set(CommandUtils.PLAY_STEP, ((int) processControl.get(CommandUtils.PLAY_STEP) + 1) % 2);
-                playChessButton.setText(stepList[(int) processControl.get(CommandUtils.PLAY_STEP)]);
-                processControl.set(CommandUtils.PROCESS_TYPE, 4);
-                processControl.set(CommandUtils.DO_SIGNAL, true);
+                processControl.set(ProcessControlSetting.PLAY_STEP, ((int) processControl.get(ProcessControlSetting.PLAY_STEP) + 1) % 2);
+                playChessButton.setText(stepList[(int) processControl.get(ProcessControlSetting.PLAY_STEP)]);
+                processControl.set(ProcessControlSetting.PROCESS_TYPE, 4);
+                processControl.set(ProcessControlSetting.DO_SIGNAL, true);
             }
         });
 
@@ -249,11 +250,11 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
 
         /* Process*/
         Mat ret = inputFrame.rgba();
-        if ((boolean) processControl.get(CommandUtils.DO_SIGNAL)) {
-            switch ((int) processControl.get(CommandUtils.PROCESS_TYPE)) {
+        if ((boolean) processControl.get(ProcessControlSetting.DO_SIGNAL)) {
+            switch ((int) processControl.get(ProcessControlSetting.PROCESS_TYPE)) {
                 //实验性方法
-                case 0:
-                    switch ((int) processControl.get(CommandUtils.LAB_STEP)) {
+                case ChessStepSetting.LAB_STEP:
+                    switch ((int) processControl.get(ProcessControlSetting.LAB_STEP)) {
                         case 0:
                             break;
                         case 1:
@@ -262,14 +263,14 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                     }
                     break;
                 //硬件归零
-                case 1:
+                case ChessStepSetting.RESET_STEP:
                     if (moveSystem.isConnect()) {
                         moveSystem.reset();
-                        processControl.set(CommandUtils.DO_SIGNAL, false);
+                        processControl.set(ProcessControlSetting.DO_SIGNAL, false);
                     }
                     break;
                 //初始化
-                case 2:
+                case ChessStepSetting.INIT_STEP:
                     //变量初始化
                     ChessUtils.chess = new Chess[32];
                     ChessUtils.chessboard = new Chessboard[8][8];
@@ -279,11 +280,11 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                     chessDetection.detectChessBoardBowl(inputFrame);
                     if (ChessUtils.chessboard[7][7] != null && ChessUtils.chessboardKeyPoints[3] != null && ChessUtils.chessboardBowl[7][3] != null && ChessUtils.chessboardBowlKeyPoints[3] != null) {
                         voiceHint.playVoice(R.raw.welcome);
-                        processControl.set(CommandUtils.DO_SIGNAL, false);
+                        processControl.set(ProcessControlSetting.DO_SIGNAL, false);
                     }
                     break;
                 //码棋
-                case 3:
+                case ChessStepSetting.RESETCHESS_STEP:
                     if (chessDetection.detectChessMen(inputFrame)) {
                         //码棋
                         chessLogic.clearStartingPoint();
@@ -291,18 +292,18 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                         chessLogic.clearStartingPoint();
                         moveSystem.move2Zero();
                         chessLogic.requireResetChess();
-                        processControl.set(CommandUtils.DO_SIGNAL, false);
+                        processControl.set(ProcessControlSetting.DO_SIGNAL, false);
                     }
                     break;
                 //下棋
-                case 4:
-                    switch ((int) processControl.get(CommandUtils.PLAY_STEP)) {
+                case ChessStepSetting.PLAY_STEP:
+                    switch ((int) processControl.get(ProcessControlSetting.PLAY_STEP)) {
                         //保存旧棋盘状态
                         case 0:
                             if (chessDetection.detectChessMen(inputFrame)) {
                                 voiceHint.playVoice(R.raw.yourturn);
                                 ChessUtils.preChessboard = chessLogic.saveCurrentChessboard();
-                                processControl.set(CommandUtils.DO_SIGNAL, false);
+                                processControl.set(ProcessControlSetting.DO_SIGNAL, false);
                             }
                             break;
                         //识别棋子
@@ -333,7 +334,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                                     chessLogic.doRobotChessStep(null, playerStep);
                                     moveSystem.move2Zero();
                                 }
-                                processControl.set(CommandUtils.DO_SIGNAL, false);
+                                processControl.set(ProcessControlSetting.DO_SIGNAL, false);
                             }
                             break;
                     }
@@ -347,7 +348,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
             for (int row = 0; row < 8; row++) {
                 for (int col = 0; col < 8; col++) {
                     Point point = new Point(ChessUtils.chessboard[row][col].x, ChessUtils.chessboard[row][col].y);
-                    Core.line(ret, point, point, new Scalar(255), 10);
+                    Core.line(ret, point, point, new Scalar(0,0,255), 10);
                 }
             }
         }
@@ -355,7 +356,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
             for (int row = 0; row < 8; row++) {
                 for (int col = 0; col < 4; col++) {
                     Point point = new Point(ChessUtils.chessboardBowl[row][col].x, ChessUtils.chessboardBowl[row][col].y);
-                    Core.line(ret, point, point, new Scalar(255), 10);
+                    Core.line(ret, point, point, new Scalar(255,0,0), 10);
                 }
             }
         }
