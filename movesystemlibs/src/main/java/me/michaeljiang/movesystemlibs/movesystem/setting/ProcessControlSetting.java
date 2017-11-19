@@ -1,6 +1,6 @@
 package me.michaeljiang.movesystemlibs.movesystem.setting;
 
-
+// 过程控制类 下标 所代表的含义
 public class ProcessControlSetting {
     public static final int PROCESS_TYPE = 0;
     public static final int LAB_STEP = 1;

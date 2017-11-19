@@ -1,6 +1,6 @@
 package me.michaeljiang.movesystemlibs.movesystem.setting;
 
-
+// 过程控制指令
 public class ChessStepSetting {
     public static final int LAB_STEP = 0;
     public static final int RESET_STEP = 1;
