@@ -254,19 +254,41 @@ public class MoveSystem {
                     String topic = data.getString("topic");
                     if (topic != null) {
                         if (topic.equals(MoveSystemSetting.TAG_RECEIVER_FROM_CHESS_BELL)) {
-                            if (processControl != null) {
-                                processControl.set(ProcessControlSetting.PROCESS_TYPE, Integer.valueOf(data.getString("obj")));
-                                switch ((int) processControl.get(ProcessControlSetting.PROCESS_TYPE)) {
-                                    case ChessStepSetting.LAB_STEP:
-                                        processControl.set(ProcessControlSetting.LAB_STEP, ((int) processControl.get(ProcessControlSetting.LAB_STEP) + 1) % 2);
+                            String chessBellCommand = data.getString("obj");
+                            if (chessBellCommand != null) {
+                                int chessStep = -1;
+                                switch (chessBellCommand) {
+                                    case "switchlabmode":
+                                        chessStep = ChessStepSetting.LAB_STEP;
                                         break;
-                                    case ChessStepSetting.PLAY_STEP:
-                                        processControl.set(ProcessControlSetting.PLAY_STEP, ((int) processControl.get(ProcessControlSetting.PLAY_STEP) + 1) % 2);
+                                    case "resetallsystem":
+                                        chessStep = ChessStepSetting.RESET_STEP;
                                         break;
-                                    default:
+                                    case "start":
+                                        chessStep = ChessStepSetting.INIT_STEP;
+                                        break;
+                                    case "chesscode":
+                                        chessStep = ChessStepSetting.RESETCHESS_STEP;
+                                        break;
+                                    case "firstchess":
+                                    case "secondchess":
+                                        chessStep = ChessStepSetting.PLAY_STEP;
                                         break;
                                 }
-                                processControl.set(ProcessControlSetting.DO_SIGNAL, true);
+                                if (processControl != null) {
+                                    processControl.set(ProcessControlSetting.PROCESS_TYPE, chessStep);
+                                    switch ((int) processControl.get(ProcessControlSetting.PROCESS_TYPE)) {
+                                        case ChessStepSetting.LAB_STEP:
+                                            processControl.set(ProcessControlSetting.LAB_STEP, ((int) processControl.get(ProcessControlSetting.LAB_STEP) + 1) % 2);
+                                            break;
+                                        case ChessStepSetting.PLAY_STEP:
+                                            processControl.set(ProcessControlSetting.PLAY_STEP, ((int) processControl.get(ProcessControlSetting.PLAY_STEP) + 1) % 2);
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                    processControl.set(ProcessControlSetting.DO_SIGNAL, true);
+                                }
                             }
                         } else if (topic.equals(MoveSystemSetting.TAG_RECEIVER_FROM_TRANSPORTER)) {
                             try {
@@ -706,7 +728,7 @@ public class MoveSystem {
     public boolean move2Zero() {
         MoveData moveData = new MoveData();
         Chess temp = new Chess();
-        temp.setPosition(53.625);
+        temp.setPosition(67.5);
         moveData.setConveyerBandData(contrastConveyerBandPosition(temp));
         moveSystemSend.addMoveData(moveData);
         return true;
