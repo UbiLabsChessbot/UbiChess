@@ -11,5 +11,4 @@ public class ProjectSetting {
     public final static int CHESS_BOWL = -4;
     public final static int INTERNATIONAL_CHESS_BOWL = -5;
     public final static int CHINESE_CHESS_BOWL = -6;
-
 }

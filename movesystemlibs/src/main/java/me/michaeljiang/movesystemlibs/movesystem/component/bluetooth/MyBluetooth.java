@@ -37,7 +37,7 @@ public class MyBluetooth {
 
     /**蓝牙变量**/
     public  String BlueToothName = "null";
-    public  String BlueToothAddress = "98:D3:32:70:57:B8";
+    public  String BlueToothAddress = "00:15:83:35:62:2C";
     public  int BlueToothType = -1;
 
     /**系统类**/
@@ -69,8 +69,6 @@ public class MyBluetooth {
     public void initBluetooth(){
         IntentFilter discoveryFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         IntentFilter foundFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-//        mContext.registerReceiver(mReceiver,discoveryFilter);
-//        mContext.registerReceiver(mReceiver,foundFilter);
     }
 
     /**
@@ -110,7 +108,6 @@ public class MyBluetooth {
                 super.handleMessage(msg);
             }
         };
-
     }
 
     /**

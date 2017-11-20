@@ -25,8 +25,8 @@ import me.michaeljiang.movesystemlibs.movesystem.component.mqtt.MyMqtt;
 import me.michaeljiang.movesystemlibs.movesystem.model.Chess;
 import me.michaeljiang.movesystemlibs.movesystem.model.MoveData;
 import me.michaeljiang.movesystemlibs.movesystem.setting.ChessStepSetting;
-import me.michaeljiang.movesystemlibs.movesystem.setting.ProcessControlSetting;
 import me.michaeljiang.movesystemlibs.movesystem.setting.MoveSystemSetting;
+import me.michaeljiang.movesystemlibs.movesystem.setting.ProcessControlSetting;
 import me.michaeljiang.movesystemlibs.movesystem.setting.ProjectSetting;
 import me.michaeljiang.movesystemlibs.movesystem.thread.MoveSystemSend;
 
@@ -92,33 +92,41 @@ public class MoveSystem {
         A7 B7 . . . .
         . . . . . . .
         A1 B1 . . . .
-
      */
 
     /**
      * 测试用数据
      **/
     //internation_chess
-    MotoPosition Internation_1 = new MotoPosition(new int[]{84, 39, 102, 90, 50, 90, 70});
-    MotoPosition Internation_2 = new MotoPosition(new int[]{84, 60, 109, 90, 46, 90, 70});
-    MotoPosition Internation_3 = new MotoPosition(new int[]{83, 80, 114, 90, 40, 90, 70});
-    MotoPosition Internation_4 = new MotoPosition(new int[]{82, 104, 112, 90, 44, 90, 70});
+    MotoPosition Internation_Left_1 = new MotoPosition(new int[]{94, 33, 95, 90, 56, 90, 70});
+    MotoPosition Internation_Left_2 = new MotoPosition(new int[]{94, 53, 108, 90, 41, 90, 70});
+    MotoPosition Internation_Left_3 = new MotoPosition(new int[]{94, 69, 115, 90, 32, 90, 70});
+    MotoPosition Internation_Left_4 = new MotoPosition(new int[]{95, 88, 118, 90, 30, 90, 70});
 
-    MotoPosition Internation_5 = new MotoPosition(new int[]{132, 72, 111, 90, 44, 90, 70});
-    MotoPosition Internation_6 = new MotoPosition(new int[]{138, 86, 112, 90, 43, 90, 70});
-    MotoPosition Internation_7 = new MotoPosition(new int[]{143, 98, 111, 90, 46, 90, 70});
-    MotoPosition Internation_8 = new MotoPosition(new int[]{151, 114, 108, 90, 49, 90, 70});
+    MotoPosition Internation_Left_5 = new MotoPosition(new int[]{140, 58, 112, 90, 33, 90, 70});
+    MotoPosition Internation_Left_6 = new MotoPosition(new int[]{145, 71, 113, 90, 36, 90, 70});
+    MotoPosition Internation_Left_7 = new MotoPosition(new int[]{150, 81, 117, 90, 30, 90, 70});
+    MotoPosition Internation_Left_8 = new MotoPosition(new int[]{158, 88, 120, 90, 25, 90, 70});
 
+    MotoPosition Internation_Right_1 = new MotoPosition(new int[]{93, 32, 97, 90, 51, 90, 70});
+    MotoPosition Internation_Right_2 = new MotoPosition(new int[]{93, 53, 108, 90, 40, 90, 70});
+    MotoPosition Internation_Right_3 = new MotoPosition(new int[]{93, 68, 116, 90, 29, 90, 70});
+    MotoPosition Internation_Right_4 = new MotoPosition(new int[]{93, 87, 120, 91, 29, 90, 70});
+
+    MotoPosition Internation_Right_5 = new MotoPosition(new int[]{44, 59, 112, 91, 36, 90, 70});
+    MotoPosition Internation_Right_6 = new MotoPosition(new int[]{39, 71, 115, 91, 34, 90, 70});
+    MotoPosition Internation_Right_7 = new MotoPosition(new int[]{33, 82, 117, 91, 35, 90, 70});
+    MotoPosition Internation_Right_8 = new MotoPosition(new int[]{25, 93, 119, 90, 25, 90, 70});
     //internation_chess_bowl
-    MotoPosition Internation_Bow_1 = new MotoPosition(new int[]{113, 33, 104, 90, 45, 90, 70});
-    MotoPosition Internation_Bow_2 = new MotoPosition(new int[]{114, 51, 105, 90, 49, 90, 70});
-    MotoPosition Internation_Bow_3 = new MotoPosition(new int[]{116, 69, 111, 90, 44, 90, 70});
-    MotoPosition Internation_Bow_4 = new MotoPosition(new int[]{119, 84, 116, 90, 40, 90, 70});
+    MotoPosition Internation_Bow_1 = new MotoPosition(new int[]{94, 38, 98, 90, 49, 90, 70});
+    MotoPosition Internation_Bow_2 = new MotoPosition(new int[]{94, 52, 110, 90, 32, 90, 70});
+    MotoPosition Internation_Bow_3 = new MotoPosition(new int[]{94, 65, 117, 90, 25, 90, 70});
+    MotoPosition Internation_Bow_4 = new MotoPosition(new int[]{95, 86, 118, 90, 35, 90, 70});
 
-    MotoPosition Internation_Bow_5 = new MotoPosition(new int[]{135, 70, 112, 90, 43, 90, 70});
-    MotoPosition Internation_Bow_6 = new MotoPosition(new int[]{140, 74, 122, 90, 26, 90, 70});
-    MotoPosition Internation_Bow_7 = new MotoPosition(new int[]{146, 93, 110, 90, 49, 90, 70});
-    MotoPosition Internation_Bow_8 = new MotoPosition(new int[]{152, 100, 114, 90, 42, 90, 70});
+    MotoPosition Internation_Bow_5 = new MotoPosition(new int[]{139, 57, 111, 90, 35, 90, 70});
+    MotoPosition Internation_Bow_6 = new MotoPosition(new int[]{143, 65, 115, 90, 30, 90, 70});
+    MotoPosition Internation_Bow_7 = new MotoPosition(new int[]{148, 76, 117, 90, 26, 90, 70});
+    MotoPosition Internation_Bow_8 = new MotoPosition(new int[]{154, 84, 119, 90, 24, 90, 70});
     //
     //
     MotoPosition reset = new MotoPosition(new int[]{90, 90, 65, 90, 90, 90, 70});
@@ -134,30 +142,45 @@ public class MoveSystem {
      */
     public MoveSystem(Context context) {
         this.context = context;
+        //chessboard(格子之间相差5.1cm ++)
+        double leftChessboardPositionA = 24.375;
+        double leftChessboardPositionB = 54.375;
 
-        //格子之间相差5.1cm
-        double tempPositionA = 0;//cm
-        double tempPositionB = 33.75;//cm
+        double rightChessboardPositionA = 44.7;//60
+        double rightChessboardPositionB = 12.825;//28.125
+
 
         //格子之间相差4.5cm
         double tempPositionC = 0;//cm
-        double tempPositionD = 11.25;//cm
+        double tempPositionD = 30;//cm
         //col=column 竖行row=row 横行
 
+        for (int row = 0; row < 4; row++) {
+            //按照循环依次为 A->B->C->D,0-4
+            chesses[row][0] = new Chess(Internation_Left_1, leftChessboardPositionA);
+            chesses[row][1] = new Chess(Internation_Left_2, leftChessboardPositionA);
+            chesses[row][2] = new Chess(Internation_Left_3, leftChessboardPositionA);
+            chesses[row][3] = new Chess(Internation_Left_4, leftChessboardPositionA);
+            chesses[row][4] = new Chess(Internation_Left_5, leftChessboardPositionB);
+            chesses[row][5] = new Chess(Internation_Left_6, leftChessboardPositionB);
+            chesses[row][6] = new Chess(Internation_Left_7, leftChessboardPositionB);
+            chesses[row][7] = new Chess(Internation_Left_8, leftChessboardPositionB);
 
-        for (int row = 0; row < 8; row++) {
-            //按照循环依次为 A->B->C->D
-            chesses[row][0] = new Chess(Internation_1, tempPositionA);
-            chesses[row][1] = new Chess(Internation_2, tempPositionA);
-            chesses[row][2] = new Chess(Internation_3, tempPositionA);
-            chesses[row][3] = new Chess(Internation_4, tempPositionA);
-            chesses[row][4] = new Chess(Internation_5, tempPositionB);
-            chesses[row][5] = new Chess(Internation_6, tempPositionB);
-            chesses[row][6] = new Chess(Internation_7, tempPositionB);
-            chesses[row][7] = new Chess(Internation_8, tempPositionB);
+            //按照循环依次为 A->B->C->D,4-8
+            chesses[row + 4][0] = new Chess(Internation_Right_1, rightChessboardPositionA);
+            chesses[row + 4][1] = new Chess(Internation_Right_2, rightChessboardPositionA);
+            chesses[row + 4][2] = new Chess(Internation_Right_3, rightChessboardPositionA);
+            chesses[row + 4][3] = new Chess(Internation_Right_4, rightChessboardPositionA);
+            chesses[row + 4][4] = new Chess(Internation_Right_5, rightChessboardPositionB);
+            chesses[row + 4][5] = new Chess(Internation_Right_6, rightChessboardPositionB);
+            chesses[row + 4][6] = new Chess(Internation_Right_7, rightChessboardPositionB);
+            chesses[row + 4][7] = new Chess(Internation_Right_8, rightChessboardPositionB);
+
             //每排移动完后,改变方向变量
-            tempPositionA += 5.1;//cm
-            tempPositionB += 5.1;//cm
+            leftChessboardPositionA += 5.1;//cm
+            leftChessboardPositionB += 5.1;//cm
+            rightChessboardPositionA += 5.1;//cm
+            rightChessboardPositionB += 5.1;//cm
         }
 
         for (int row = 0; row < 4; row++) {
@@ -634,7 +657,7 @@ public class MoveSystem {
         if (isFinishPosition) {
             int tempMoto5 = readData.getMoto5();
             int tempMOto3 = readData.getMoto3();
-            readData.setMoto5(tempMoto5 + 12);
+            readData.setMoto5(tempMoto5 + 5);
             readData.setMoto3((tempMOto3 + 1));
         }
         return readData;
@@ -741,3 +764,5 @@ public class MoveSystem {
         return false;
     }
 }
+
+
