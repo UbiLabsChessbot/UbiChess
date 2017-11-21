@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 public class ChessUtils {
     private static final String TAG = ChessUtils.class.getSimpleName();
 
-    public static final int CHESS_RADIUS = 42;
+    public static final int CHESS_RADIUS = 40;
     public static Chessboard[][] chessboard = new Chessboard[8][8];
     public static Chessboard[][] chessboardBowl = new Chessboard[8][4];
     public static Chessboard[][] preChessboard = new Chessboard[8][8];

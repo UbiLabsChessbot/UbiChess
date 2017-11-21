@@ -54,6 +54,11 @@ public class ChessDetection {
     private Mat chessMaskMat;
     private Mat morphologyExElement;
 
+    private static int CHESS_BOARD_S = 100;
+    private static int CHESS_BOARD_V = 100;
+    private static int CHESS_BOARD_BOWL_S = 100;
+    private static int CHESS_BOARD_BOWL_V = 100;
+
     public ChessDetection(Size imgSize) {
         Size chessSize = new Size(CHESS_RADIUS * 2 * 8, CHESS_RADIUS * 2 * 4);
         chessMaskMat = new Mat(CHESS_RADIUS * 2, CHESS_RADIUS * 2, CvType.CV_8U, new Scalar(0));
@@ -86,7 +91,7 @@ public class ChessDetection {
         zeroMatOfPoint3f.copyTo(tmpMatOfPoint3f);
         MatOfPoint3f circleMat = tmpMatOfPoint3f;
 
-        Imgproc.HoughCircles(grayImg, circleMat, Imgproc.CV_HOUGH_GRADIENT, 1, 100, 200, 20, 35, 50);
+        Imgproc.HoughCircles(grayImg, circleMat, Imgproc.CV_HOUGH_GRADIENT, 1, 100, 200, 20, 35, 45);
         List<Point3> circles = circleMat.toList();
 
         Mat chessImg = tmpMat2;
@@ -102,6 +107,10 @@ public class ChessDetection {
             for (int cnt = 0; cnt < circles.size() && cnt < 32; cnt++) {
                 double x = circles.get(cnt).x;
                 double y = circles.get(cnt).y;
+                double z = circles.get(cnt).z;
+
+//                Log.e(TAG,"Circle R: " + z);
+
                 int chessImageRow = cnt / 8;
                 int chessImageCol = cnt % 8;
 
@@ -157,18 +166,18 @@ public class ChessDetection {
         Mat rgbaImg = inputRgbaImg;
         inputFrame.rgba().copyTo(rgbaImg);
 
-        zeroMat.copyTo(tmpMat);
         Mat rgbImg = tmpMat;
+        zeroMat.copyTo(rgbImg);
         Imgproc.cvtColor(rgbaImg, rgbImg, Imgproc.COLOR_RGBA2RGB);
         Mat hsvImg = tmpMat;
         Imgproc.cvtColor(rgbImg, hsvImg, Imgproc.COLOR_RGB2HSV);
 
-        zeroMat.copyTo(tmpMat2);
-        zeroMat.copyTo(tmpMat3);
-        zeroMat.copyTo(tmpMat4);
         Mat hsvSplit1 = tmpMat2;
         Mat hsvSplit2 = tmpMat3;
         Mat hsvSplit3 = tmpMat4;
+        zeroMat.copyTo(hsvSplit1);
+        zeroMat.copyTo(hsvSplit2);
+        zeroMat.copyTo(hsvSplit3);
         List<Mat> hsvSplits = new ArrayList<>(Arrays.asList(hsvSplit1, hsvSplit2, hsvSplit3));
 
         Core.split(hsvImg, hsvSplits);
@@ -176,26 +185,25 @@ public class ChessDetection {
         Core.merge(hsvSplits, hsvImg);
 
         Mat labelImg = tmpMat;
-        Core.inRange(hsvImg, new Scalar(100, 100, 100), new Scalar(124, 255, 255), labelImg);
+        Core.inRange(hsvImg, new Scalar(100, CHESS_BOARD_S, CHESS_BOARD_V), new Scalar(124, 255, 255), labelImg);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_OPEN, morphologyExElement);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_CLOSE, morphologyExElement);
 
         List<MatOfPoint> labelContours = new ArrayList<>();
         Mat hierarchy = tmpMat2;
         Imgproc.findContours(labelImg, labelContours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-        Imgproc.drawContours(rgbaImg, labelContours, -1, new Scalar(0, 255, 0));
 
         ChessUtils.chessboard = new Chessboard[8][8];
         ChessUtils.chessboardKeyPoints = new Point[4];
         if (labelContours.size() != 0) {
-            zeroMatOfPoint2f.copyTo(tmpMatOfPoint2f);
-            MatOfPoint2f labelMat = tmpMatOfPoint2f;
-
             List<Point> labelPoints = new ArrayList<>();
             for (MatOfPoint aMatOfPoint : labelContours) {
                 labelPoints.addAll(aMatOfPoint.toList());
                 aMatOfPoint.release();
             }
+
+            MatOfPoint2f labelMat = tmpMatOfPoint2f;
+            zeroMatOfPoint2f.copyTo(labelMat);
             labelMat.fromList(labelPoints);
             RotatedRect chessboardImg = Imgproc.minAreaRect(labelMat);
 
@@ -219,24 +227,6 @@ public class ChessDetection {
                 ChessUtils.chessboardKeyPoints[cnt] = chessKeyPoints[i];
             }
             chessKeyPoints = ChessUtils.chessboardKeyPoints;
-
-            zeroMatOfPoint.copyTo(tmpMatOfPoint);
-            MatOfPoint polyMat = tmpMatOfPoint;
-
-            polyMat.fromArray(chessKeyPoints);
-            List<MatOfPoint> polyMatList = new ArrayList<>();
-            polyMatList.add(polyMat);
-
-            zeroGray.copyTo(tmpMat2);
-            Mat mask = tmpMat2;
-
-            Core.fillPoly(mask, polyMatList, new Scalar(255));
-            for (MatOfPoint aMatOfPoint : polyMatList) {
-                aMatOfPoint.release();
-            }
-
-            rgbaImg.copyTo(tmpMat2, mask);
-            tmpMat2.copyTo(rgbaImg);
 
             List<List<Point>> chessPoints = new ArrayList<>();
             for (int i = 0; i < 9; i++) {
@@ -269,18 +259,18 @@ public class ChessDetection {
         Mat rgbaImg = inputRgbaImg;
         inputFrame.rgba().copyTo(rgbaImg);
 
-        zeroMat.copyTo(tmpMat);
         Mat rgbImg = tmpMat;
+        zeroMat.copyTo(rgbImg);
         Imgproc.cvtColor(rgbaImg, rgbImg, Imgproc.COLOR_RGBA2RGB);
         Mat hsvImg = tmpMat;
         Imgproc.cvtColor(rgbImg, hsvImg, Imgproc.COLOR_RGB2HSV);
 
-        zeroMat.copyTo(tmpMat2);
-        zeroMat.copyTo(tmpMat3);
-        zeroMat.copyTo(tmpMat4);
         Mat hsvSplit1 = tmpMat2;
         Mat hsvSplit2 = tmpMat3;
         Mat hsvSplit3 = tmpMat4;
+        zeroMat.copyTo(hsvSplit1);
+        zeroMat.copyTo(hsvSplit2);
+        zeroMat.copyTo(hsvSplit3);
         List<Mat> hsvSplits = new ArrayList<>(Arrays.asList(hsvSplit1, hsvSplit2, hsvSplit3));
 
         Core.split(hsvImg, hsvSplits);
@@ -288,7 +278,7 @@ public class ChessDetection {
         Core.merge(hsvSplits, hsvImg);
 
         Mat labelImg = tmpMat;
-        Core.inRange(hsvImg, new Scalar(156, 100, 70), new Scalar(180, 255, 255), labelImg);
+        Core.inRange(hsvImg, new Scalar(156, CHESS_BOARD_BOWL_S, CHESS_BOARD_BOWL_V), new Scalar(180, 255, 255), labelImg);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_OPEN, morphologyExElement);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_CLOSE, morphologyExElement);
 
@@ -331,24 +321,6 @@ public class ChessDetection {
                 ChessUtils.chessboardBowlKeyPoints[cnt] = chessboardBowlKeyPoints[i];
             }
             chessboardBowlKeyPoints = ChessUtils.chessboardBowlKeyPoints;
-
-            zeroMatOfPoint.copyTo(tmpMatOfPoint);
-            MatOfPoint polyMat = tmpMatOfPoint;
-
-            polyMat.fromArray(chessboardBowlKeyPoints);
-            List<MatOfPoint> polyMatList = new ArrayList<>();
-            polyMatList.add(polyMat);
-
-            zeroGray.copyTo(tmpMat2);
-            Mat mask = tmpMat2;
-
-            Core.fillPoly(mask, polyMatList, new Scalar(255));
-            for (MatOfPoint aMatOfPoint : polyMatList) {
-                aMatOfPoint.release();
-            }
-
-            rgbaImg.copyTo(tmpMat2, mask);
-            tmpMat2.copyTo(rgbaImg);
 
             List<List<Point>> chessPoints = new ArrayList<>();
             for (int i = 0; i < 9; i++) {
@@ -403,8 +375,9 @@ public class ChessDetection {
         Core.merge(hsvSplits, hsvImg);
 
         Mat labelImg = tmpMat;
-//        Core.inRange(hsvImg, new Scalar(35, 35, 35), new Scalar(99, 255, 255), labelImg);
-        Core.inRange(hsvImg, new Scalar(100, 100, 100), new Scalar(124, 255, 255), labelImg);
+        Core.inRange(hsvImg, new Scalar(35, 35, 35), new Scalar(99, 255, 255), labelImg);
+//        Core.inRange(hsvImg, new Scalar(100, CHESS_BOARD_S, CHESS_BOARD_V), new Scalar(124, 255, 255), labelImg);
+//        Core.inRange(hsvImg, new Scalar(156, CHESS_BOARD_BOWL_S, CHESS_BOARD_BOWL_V), new Scalar(180, 255, 255), labelImg);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_OPEN, morphologyExElement);
         Imgproc.morphologyEx(labelImg, labelImg, MORPH_CLOSE, morphologyExElement);
         return labelImg;
