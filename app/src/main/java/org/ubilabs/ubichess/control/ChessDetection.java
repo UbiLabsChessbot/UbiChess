@@ -54,10 +54,10 @@ public class ChessDetection {
     private Mat chessMaskMat;
     private Mat morphologyExElement;
 
-    private static int CHESS_BOARD_S = 100;
-    private static int CHESS_BOARD_V = 100;
-    private static int CHESS_BOARD_BOWL_S = 100;
-    private static int CHESS_BOARD_BOWL_V = 100;
+    private static int CHESS_BOARD_S = 80;
+    private static int CHESS_BOARD_V = 70;
+    private static int CHESS_BOARD_BOWL_S = 90;
+    private static int CHESS_BOARD_BOWL_V = 90;
 
     public ChessDetection(Size imgSize) {
         Size chessSize = new Size(CHESS_RADIUS * 2 * 8, CHESS_RADIUS * 2 * 4);
@@ -91,7 +91,7 @@ public class ChessDetection {
         zeroMatOfPoint3f.copyTo(tmpMatOfPoint3f);
         MatOfPoint3f circleMat = tmpMatOfPoint3f;
 
-        Imgproc.HoughCircles(grayImg, circleMat, Imgproc.CV_HOUGH_GRADIENT, 1, 100, 200, 20, 35, 45);
+        Imgproc.HoughCircles(grayImg, circleMat, Imgproc.CV_HOUGH_GRADIENT, 1, 100, 200, 20, ChessUtils.CHESS_RADIUS - 3, ChessUtils.CHESS_RADIUS + 3);
         List<Point3> circles = circleMat.toList();
 
         Mat chessImg = tmpMat2;
@@ -103,7 +103,7 @@ public class ChessDetection {
                 ChessUtils.chessboard[row][col].setChess(null);
             }
         }
-        if (circles.size() > 0) {
+        if (circles.size() == 32) {
             for (int cnt = 0; cnt < circles.size() && cnt < 32; cnt++) {
                 double x = circles.get(cnt).x;
                 double y = circles.get(cnt).y;
@@ -158,6 +158,8 @@ public class ChessDetection {
             } catch (InterruptedException | ExecutionException | JSONException e) {
                 e.printStackTrace();
             }
+        } else {
+            Log.e(TAG, "Size: " + circles.size() + "");
         }
         return false;
     }
@@ -353,62 +355,80 @@ public class ChessDetection {
     public Mat lab(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 //        return inputFrame.rgba();
 
-        Mat rgbaImg = inputRgbaImg;
-        inputFrame.rgba().copyTo(rgbaImg);
-
-        zeroMat.copyTo(tmpMat);
-        Mat rgbImg = tmpMat;
-        Imgproc.cvtColor(rgbaImg, rgbImg, Imgproc.COLOR_RGBA2RGB);
-        Mat hsvImg = tmpMat;
-        Imgproc.cvtColor(rgbImg, hsvImg, Imgproc.COLOR_RGB2HSV);
-
-        zeroMat.copyTo(tmpMat2);
-        zeroMat.copyTo(tmpMat3);
-        zeroMat.copyTo(tmpMat4);
-        Mat hsvSplit1 = tmpMat2;
-        Mat hsvSplit2 = tmpMat3;
-        Mat hsvSplit3 = tmpMat4;
-        List<Mat> hsvSplits = new ArrayList<>(Arrays.asList(hsvSplit1, hsvSplit2, hsvSplit3));
-
-        Core.split(hsvImg, hsvSplits);
-        Imgproc.equalizeHist(hsvSplits.get(2), hsvSplits.get(2));
-        Core.merge(hsvSplits, hsvImg);
-
-        Mat labelImg = tmpMat;
-        Core.inRange(hsvImg, new Scalar(35, 35, 35), new Scalar(99, 255, 255), labelImg);
-//        Core.inRange(hsvImg, new Scalar(100, CHESS_BOARD_S, CHESS_BOARD_V), new Scalar(124, 255, 255), labelImg);
-//        Core.inRange(hsvImg, new Scalar(156, CHESS_BOARD_BOWL_S, CHESS_BOARD_BOWL_V), new Scalar(180, 255, 255), labelImg);
-        Imgproc.morphologyEx(labelImg, labelImg, MORPH_OPEN, morphologyExElement);
-        Imgproc.morphologyEx(labelImg, labelImg, MORPH_CLOSE, morphologyExElement);
-        return labelImg;
-
-
 //        Mat rgbaImg = inputRgbaImg;
 //        inputFrame.rgba().copyTo(rgbaImg);
 //
-//        Mat grayImg = tmpMat;
-//        inputFrame.gray().copyTo(grayImg);
+//        zeroMat.copyTo(tmpMat);
+//        Mat rgbImg = tmpMat;
+//        Imgproc.cvtColor(rgbaImg, rgbImg, Imgproc.COLOR_RGBA2RGB);
+//        Mat hsvImg = tmpMat;
+//        Imgproc.cvtColor(rgbImg, hsvImg, Imgproc.COLOR_RGB2HSV);
 //
-//        zeroMatOfPoint3f.copyTo(tmpMatOfPoint3f);
-//        MatOfPoint3f circleMat = tmpMatOfPoint3f;
+//        zeroMat.copyTo(tmpMat2);
+//        zeroMat.copyTo(tmpMat3);
+//        zeroMat.copyTo(tmpMat4);
+//        Mat hsvSplit1 = tmpMat2;
+//        Mat hsvSplit2 = tmpMat3;
+//        Mat hsvSplit3 = tmpMat4;
+//        List<Mat> hsvSplits = new ArrayList<>(Arrays.asList(hsvSplit1, hsvSplit2, hsvSplit3));
 //
-//        Imgproc.HoughCircles(grayImg, circleMat, Imgproc.CV_HOUGH_GRADIENT, 1, 100, 200, 20, 35, 50);
-//        List<Point3> circles = circleMat.toList();
+//        Core.split(hsvImg, hsvSplits);
+//        Imgproc.equalizeHist(hsvSplits.get(2), hsvSplits.get(2));
+//        Core.merge(hsvSplits, hsvImg);
 //
-//        Mat chessImg = tmpMat2;
-//        zeroChessMat.copyTo(chessImg);
-//
-//        ChessUtils.chess = new Chess[32];
-//        if (circles.size() > 0) {
-//            for (int cnt = 0; cnt < circles.size() && cnt < 32; cnt++) {
-//                double x = circles.get(cnt).x;
-//                double y = circles.get(cnt).y;
-//                double z = circles.get(cnt).z;
-//
-//                Core.circle(rgbaImg, new Point(x, y), (int) z, new Scalar(255), 5);
-//                Log.e(TAG,"z: " + z);
-//            }
-//        }
-//        return rgbaImg;
+//        Mat labelImg = tmpMat;
+//        Core.inRange(hsvImg, new Scalar(35, 44, 43), new Scalar(99, 255, 255), labelImg);
+////        Core.inRange(hsvImg, new Scalar(100, CHESS_BOARD_S, CHESS_BOARD_V), new Scalar(124, 255, 255), labelImg);
+////        Core.inRange(hsvImg, new Scalar(156, CHESS_BOARD_BOWL_S, CHESS_BOARD_BOWL_V), new Scalar(180, 255, 255), labelImg);
+//        Imgproc.morphologyEx(labelImg, labelImg, MORPH_OPEN, morphologyExElement);
+//        Imgproc.morphologyEx(labelImg, labelImg, MORPH_CLOSE, morphologyExElement);
+//        return labelImg;
+
+        Mat rgbaImg = inputRgbaImg;
+        inputFrame.rgba().copyTo(rgbaImg);
+
+        Mat grayImg = tmpMat;
+        inputFrame.gray().copyTo(grayImg);
+
+        zeroMatOfPoint3f.copyTo(tmpMatOfPoint3f);
+        MatOfPoint3f circleMat = tmpMatOfPoint3f;
+
+        Imgproc.HoughCircles(grayImg, circleMat, Imgproc.CV_HOUGH_GRADIENT, 1, 100, 200, 20, ChessUtils.CHESS_RADIUS - 3, ChessUtils.CHESS_RADIUS + 3);
+        List<Point3> circles = circleMat.toList();
+
+        Mat chessImg = tmpMat2;
+        zeroChessMat.copyTo(chessImg);
+
+        if (circles.size() == 32) {
+            for (int cnt = 0; cnt < circles.size() && cnt < 32; cnt++) {
+                double x = circles.get(cnt).x;
+                double y = circles.get(cnt).y;
+                double z = circles.get(cnt).z;
+
+                int chessImageRow = cnt / 8;
+                int chessImageCol = cnt % 8;
+
+                Mat subMask = new Mat(chessImg, new Rect(chessImageCol * CHESS_RADIUS * 2, chessImageRow * CHESS_RADIUS * 2, CHESS_RADIUS * 2, CHESS_RADIUS * 2));
+                Mat subChess = new Mat(rgbaImg, new Rect(Math.min(1920 - CHESS_RADIUS * 2, Math.max(0, (int) x - CHESS_RADIUS)), Math.min(1080 - CHESS_RADIUS * 2, Math.max(0, (int) y - CHESS_RADIUS)), CHESS_RADIUS * 2, CHESS_RADIUS * 2));
+                subChess.copyTo(subMask, chessMaskMat);
+            }
+            File imgFile = ImgUtils.mat2PngFile(chessImg);
+            ChessTypeRequest requestChessType = new ChessTypeRequest();
+            try {
+                String ret = requestChessType.execute(imgFile).get();
+                Log.e(TAG, "Return JSON: " + ret);
+                JSONObject jsonObject = new JSONObject(ret);
+                String chessType = jsonObject.getString("message");
+                Log.e(TAG, ChessUtils.checkChessType(chessType, imgFile) + "");
+            } catch (InterruptedException | ExecutionException | JSONException e) {
+                e.printStackTrace();
+            }
+        } else {
+            Log.e(TAG, "Size: " + circles.size() + "");
+            for (Point3 point3 : circles) {
+                Core.circle(rgbaImg, new Point(point3.x, point3.y), (int) point3.z, new Scalar(255), 2);
+            }
+        }
+        return rgbaImg;
     }
 }

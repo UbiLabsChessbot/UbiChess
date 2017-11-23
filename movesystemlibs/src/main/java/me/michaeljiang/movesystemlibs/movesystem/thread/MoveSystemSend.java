@@ -65,6 +65,7 @@ public class MoveSystemSend extends Thread{
         try {
             while(true){
                 sleep(10);
+
                 if(moveDataList.size()==0){
                     if(isDebug){
                         Log.d(TAG,"NoData");

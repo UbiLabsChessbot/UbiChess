@@ -1,8 +1,8 @@
 package org.ubilabs.ubichess.activity;
 
-import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
+import org.opencv.android.JavaCameraView;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -16,8 +16,10 @@ import org.ubilabs.ubichess.control.VoiceHint;
 import org.ubilabs.ubichess.modle.Chess;
 import org.ubilabs.ubichess.modle.Chessboard;
 import org.ubilabs.ubichess.uitl.ChessUtils;
+
 import me.michaeljiang.movesystemlibs.movesystem.setting.ProcessControlSetting;
 import me.michaeljiang.movesystemlibs.movesystem.setting.ChessStepSetting;
+
 import org.ubilabs.ubichess.uitl.PermissionUtils;
 
 import android.Manifest;
@@ -28,6 +30,7 @@ import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
@@ -44,7 +47,7 @@ import me.michaeljiang.movesystemlibs.movesystem.MoveSystem;
 public class DetectChessActivity extends Activity implements CvCameraViewListener2 {
     private static final String TAG = DetectChessActivity.class.getSimpleName();
 
-    private CameraBridgeViewBase openCvCameraView;
+    private JavaCameraView openCvCameraView;
     private ChessDetection chessDetection;
     private ChessLogic chessLogic;
     private VoiceHint voiceHint;
@@ -75,8 +78,17 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
 
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestPermission();
+        } else {
+            initCamera();
+        }
+
         Context context = this;
         voiceHint = new VoiceHint(context);
+        voiceHint.playVoice(R.raw.systemstarting);
 
         processControl = new ArrayList<>();
         processControl.add(ProcessControlSetting.PROCESS_TYPE, -1);
@@ -183,15 +195,6 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
             }
         });
 
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-                || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            requestPermission();
-        } else {
-            initCamera();
-        }
-
         moveSystem = new MoveSystem(this);
         Log.e(TAG, "Init MoveSystem Start!");
         moveSystem.initSystem(processControl);
@@ -201,12 +204,20 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
     }
 
     private void initCamera() {
-        openCvCameraView = (CameraBridgeViewBase) findViewById(R.id.HelloOpenCvView);
+        openCvCameraView = findViewById(R.id.HelloOpenCvView);
         openCvCameraView.setVisibility(SurfaceView.VISIBLE);
         openCvCameraView.setCvCameraViewListener(this);
         openCvCameraView.setMaxFrameSize(1920, 1080);
         openCvCameraView.enableFpsMeter();
         openCvCameraView.enableView();
+
+        openCvCameraView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                openCvCameraView.focusPoint(event);
+                return false;
+            }
+        });
     }
 
     @Override
@@ -279,7 +290,6 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                     chessDetection.detectChessBoard(inputFrame);
                     chessDetection.detectChessBoardBowl(inputFrame);
                     if (ChessUtils.chessboard[7][7] != null && ChessUtils.chessboardKeyPoints[3] != null && ChessUtils.chessboardBowl[7][3] != null && ChessUtils.chessboardBowlKeyPoints[3] != null) {
-                        voiceHint.playVoice(R.raw.welcome);
                         processControl.set(ProcessControlSetting.DO_SIGNAL, false);
                     }
                     break;
@@ -301,7 +311,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                         //保存旧棋盘状态
                         case 0:
                             if (chessDetection.detectChessMen(inputFrame)) {
-                                voiceHint.playVoice(R.raw.yourturn);
+                                voiceHint.playVoice(R.raw.playerturn);
                                 ChessUtils.preChessboard = chessLogic.saveCurrentChessboard();
                                 processControl.set(ProcessControlSetting.DO_SIGNAL, false);
                             }
@@ -318,10 +328,10 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                                     Log.e(TAG, "Robot Step: " + robotStep);
                                     switch (robotStep) {
                                         case "GGWIN":
-                                            voiceHint.playVoice(R.raw.win);
+                                            voiceHint.playVoice(R.raw.youwin);
                                             break;
                                         case "GGLOSE":
-                                            voiceHint.playVoice(R.raw.lose);
+                                            voiceHint.playVoice(R.raw.youloose);
                                             break;
                                         default:
                                             chessLogic.doRobotChessStep(robotStep, playerStep);
@@ -330,7 +340,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                                     }
                                 } else {
                                     Log.e(TAG, "Wrong Step!");
-                                    voiceHint.playVoice(R.raw.wrong);
+                                    voiceHint.playVoice(R.raw.wrongstep);
                                     chessLogic.doRobotChessStep(null, playerStep);
                                     moveSystem.move2Zero();
                                 }
@@ -348,7 +358,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
             for (int row = 0; row < 8; row++) {
                 for (int col = 0; col < 8; col++) {
                     Point point = new Point(ChessUtils.chessboard[row][col].x, ChessUtils.chessboard[row][col].y);
-                    Core.line(ret, point, point, new Scalar(0,0,255), 10);
+                    Core.line(ret, point, point, new Scalar(0, 0, 255), 10);
                 }
             }
         }
@@ -356,7 +366,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
             for (int row = 0; row < 8; row++) {
                 for (int col = 0; col < 4; col++) {
                     Point point = new Point(ChessUtils.chessboardBowl[row][col].x, ChessUtils.chessboardBowl[row][col].y);
-                    Core.line(ret, point, point, new Scalar(255,0,0), 10);
+                    Core.line(ret, point, point, new Scalar(255, 0, 0), 10);
                 }
             }
         }
