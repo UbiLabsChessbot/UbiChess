@@ -290,6 +290,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                     chessDetection.detectChessBoard(inputFrame);
                     chessDetection.detectChessBoardBowl(inputFrame);
                     if (ChessUtils.chessboard[7][7] != null && ChessUtils.chessboardKeyPoints[3] != null && ChessUtils.chessboardBowl[7][3] != null && ChessUtils.chessboardBowlKeyPoints[3] != null) {
+                        voiceHint.playVoice(R.raw.systeminitialcomplete);
                         processControl.set(ProcessControlSetting.DO_SIGNAL, false);
                     }
                     break;

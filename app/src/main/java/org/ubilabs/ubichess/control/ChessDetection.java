@@ -55,9 +55,9 @@ public class ChessDetection {
     private Mat morphologyExElement;
 
     private static int CHESS_BOARD_S = 80;
-    private static int CHESS_BOARD_V = 70;
+    private static int CHESS_BOARD_V = 80;
     private static int CHESS_BOARD_BOWL_S = 90;
-    private static int CHESS_BOARD_BOWL_V = 90;
+    private static int CHESS_BOARD_BOWL_V = 80;
 
     public ChessDetection(Size imgSize) {
         Size chessSize = new Size(CHESS_RADIUS * 2 * 8, CHESS_RADIUS * 2 * 4);
@@ -91,7 +91,7 @@ public class ChessDetection {
         zeroMatOfPoint3f.copyTo(tmpMatOfPoint3f);
         MatOfPoint3f circleMat = tmpMatOfPoint3f;
 
-        Imgproc.HoughCircles(grayImg, circleMat, Imgproc.CV_HOUGH_GRADIENT, 1, 100, 200, 20, ChessUtils.CHESS_RADIUS - 3, ChessUtils.CHESS_RADIUS + 3);
+        Imgproc.HoughCircles(grayImg, circleMat, Imgproc.CV_HOUGH_GRADIENT, 1, 80, 200, 20, ChessUtils.CHESS_RADIUS - 3, ChessUtils.CHESS_RADIUS + 3);
         List<Point3> circles = circleMat.toList();
 
         Mat chessImg = tmpMat2;
@@ -393,7 +393,7 @@ public class ChessDetection {
         zeroMatOfPoint3f.copyTo(tmpMatOfPoint3f);
         MatOfPoint3f circleMat = tmpMatOfPoint3f;
 
-        Imgproc.HoughCircles(grayImg, circleMat, Imgproc.CV_HOUGH_GRADIENT, 1, 100, 200, 20, ChessUtils.CHESS_RADIUS - 3, ChessUtils.CHESS_RADIUS + 3);
+        Imgproc.HoughCircles(grayImg, circleMat, Imgproc.CV_HOUGH_GRADIENT, 1, 80, 200, 20, ChessUtils.CHESS_RADIUS - 3, ChessUtils.CHESS_RADIUS + 3);
         List<Point3> circles = circleMat.toList();
 
         Mat chessImg = tmpMat2;

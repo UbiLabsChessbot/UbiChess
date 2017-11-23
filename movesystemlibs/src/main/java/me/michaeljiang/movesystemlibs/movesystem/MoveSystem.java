@@ -348,13 +348,16 @@ public class MoveSystem {
             public void run() {
                 super.run();
                 try {
-                    sleep(10000);
+                    sleep(4000);
                     disconnectBluetooth();
                     sleep(2000);
                     connectMqtt();
                     sleep(2000);
                     connectBluetooth();
                     sleep(2000);
+                    if(isConnect()){
+                        mqtt.pubMsg(MoveSystemSetting.TAG_RECEIVER_FROM_CHESS_BELL,"start");
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
