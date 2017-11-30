@@ -28,7 +28,7 @@ public class MyMqtt {
     private boolean isDebug = false;
 
     /**MQTT配置参数**/
-    public static String host = "10.66.15.225";
+    public static String host = "192.168.3.3";
     public static String port = "1883";
     public static String userID = "";
     public static String passWord = "";

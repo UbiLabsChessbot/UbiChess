@@ -144,16 +144,16 @@ public class MoveSystem {
     public MoveSystem(Context context) {
         this.context = context;
         //chessboard(格子之间相差5.1cm ++)
-        double leftChessboardPositionA = 24.375;
-        double leftChessboardPositionB = 54.375;
+        double leftChessboardPositionA = 20.625;
+        double leftChessboardPositionB = 58.125;
 
-        double rightChessboardPositionA = 44.7;//60
-        double rightChessboardPositionB = 12.825;//28.125
+        double rightChessboardPositionA = 42.825;//60
+        double rightChessboardPositionB = 5.325;//28.125
 
 
         //格子之间相差4.5cm
         double tempPositionC = 0;//cm
-        double tempPositionD = 30;//cm
+        double tempPositionD = 26.25;//cm
         //col=column 竖行row=row 横行
 
         for (int row = 0; row < 4; row++) {
@@ -683,7 +683,7 @@ public class MoveSystem {
         if (isFinishPosition) {
             int tempMoto5 = readData.getMoto5();
             int tempMOto3 = readData.getMoto3();
-            readData.setMoto5(tempMoto5 + 5);
+            readData.setMoto5(tempMoto5 + 8);
             readData.setMoto3((tempMOto3 + 1));
         }
         return readData;

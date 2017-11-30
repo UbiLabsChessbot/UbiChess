@@ -18,7 +18,7 @@ public class ChessStepRequest extends AsyncTask<String, Integer, String> {
     @Override
     protected String doInBackground(String... params) {
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        String url = "http://192.168.3.13:8080?move=" + params[0];
+        String url = "http://192.168.3.24:8080?move=" + params[0];
         Log.e(TAG, "url: " + url);
         String ret = "Request Failed";
         try {
