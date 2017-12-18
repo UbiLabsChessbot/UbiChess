@@ -35,6 +35,8 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -52,9 +54,10 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
     private ChessLogic chessLogic;
     private VoiceHint voiceHint;
 
-    //    private SeekBar hEdit;
-//    private SeekBar lEdit;
-//    private int generateCnt = 0;
+    private int[] detectParams;
+    private SeekBar sEdit;
+    private SeekBar vEdit;
+    private int generateCnt = 0;
 
     private List<Object> processControl;
 
@@ -96,47 +99,51 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         processControl.add(ProcessControlSetting.PLAY_STEP, -1);
         processControl.add(ProcessControlSetting.DO_SIGNAL, false);
 
-//        hEdit = (SeekBar) findViewById(R.id.hEdit);
-//        hEdit.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-//            @Override
-//            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-//                TextView hDisplay = (TextView) findViewById(R.id.hDisplay);
-//                hDisplay.setText(String.valueOf(i));
-//            }
-//
-//            @Override
-//            public void onStartTrackingTouch(SeekBar seekBar) {
-//
-//            }
-//
-//            @Override
-//            public void onStopTrackingTouch(SeekBar seekBar) {
-//
-//            }
-//        });
-//        hEdit.setProgress(110);
-//
-//        lEdit = (SeekBar) findViewById(R.id.lEdit);
-//        lEdit.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-//            @Override
-//            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-//                TextView lDisplay = (TextView) findViewById(R.id.lDisplay);
-//                lDisplay.setText(String.valueOf(i));
-//            }
-//
-//            @Override
-//            public void onStartTrackingTouch(SeekBar seekBar) {
-//
-//            }
-//
-//            @Override
-//            public void onStopTrackingTouch(SeekBar seekBar) {
-//
-//            }
-//        });
-//        lEdit.setProgress(46);
+        detectParams = new int[2];
 
-        Button labButton = (Button) findViewById(R.id.labButton);
+        sEdit = findViewById(R.id.sEdit);
+        sEdit.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                TextView hDisplay = findViewById(R.id.sDisplay);
+                hDisplay.setText(String.valueOf(i));
+                detectParams[0] = i;
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        sEdit.setProgress(60);
+
+        vEdit = findViewById(R.id.vEdit);
+        vEdit.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                TextView lDisplay = findViewById(R.id.vDisplay);
+                lDisplay.setText(String.valueOf(i));
+                detectParams[1] = i;
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        vEdit.setProgress(56);
+
+        Button labButton = findViewById(R.id.labButton);
         labButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -146,7 +153,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
             }
         });
 
-        Button resetHardwareButton = (Button) findViewById(R.id.resetHardwareButton);
+        Button resetHardwareButton = findViewById(R.id.resetHardwareButton);
         resetHardwareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -155,7 +162,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
             }
         });
 
-        Button initButton = (Button) findViewById(R.id.initButton);
+        Button initButton = findViewById(R.id.initButton);
         initButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -164,7 +171,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
             }
         });
 
-        Button move2ZeroButton = (Button) findViewById(R.id.move2ZeroButton);
+        Button move2ZeroButton = findViewById(R.id.move2ZeroButton);
         move2ZeroButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -174,7 +181,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
             }
         });
 
-        Button resetChessButton = (Button) findViewById(R.id.resetChessButton);
+        Button resetChessButton = findViewById(R.id.resetChessButton);
         resetChessButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -184,7 +191,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
         });
 
         final String[] stepList = {"玩家走", "机械臂走"};
-        final Button playChessButton = (Button) findViewById(R.id.playChessButton);
+        final Button playChessButton = findViewById(R.id.playChessButton);
         playChessButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -248,7 +255,7 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
      *   */
     @Override
     public void onCameraViewStarted(int width, int height) {
-        chessDetection = new ChessDetection(new Size(width, height));
+        chessDetection = new ChessDetection(new Size(width, height), detectParams);
     }
 
     @Override
@@ -336,14 +343,14 @@ public class DetectChessActivity extends Activity implements CvCameraViewListene
                                             break;
                                         default:
                                             chessLogic.doRobotChessStep(robotStep, playerStep);
-                                            moveSystem.move2Zero();
+                                            moveSystem.knockClock();
                                             break;
                                     }
                                 } else {
                                     Log.e(TAG, "Wrong Step!");
                                     voiceHint.playVoice(R.raw.wrongstep);
                                     chessLogic.doRobotChessStep(null, playerStep);
-                                    moveSystem.move2Zero();
+                                    moveSystem.knockClock();
                                 }
                                 processControl.set(ProcessControlSetting.DO_SIGNAL, false);
                             }

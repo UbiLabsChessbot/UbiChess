@@ -99,38 +99,39 @@ public class MoveSystem {
      * 测试用数据
      **/
     //internation_chess
-    MotoPosition Internation_Left_1 = new MotoPosition(new int[]{94, 33, 95, 90, 56, 90, 70});
-    MotoPosition Internation_Left_2 = new MotoPosition(new int[]{94, 53, 108, 90, 41, 90, 70});
-    MotoPosition Internation_Left_3 = new MotoPosition(new int[]{94, 69, 115, 90, 32, 90, 70});
-    MotoPosition Internation_Left_4 = new MotoPosition(new int[]{95, 88, 118, 90, 30, 90, 70});
+    MotoPosition Internation_Left_1 = new MotoPosition(new int[]{ 92, 31,94, 90, 51, 90, 70});
+    MotoPosition Internation_Left_2 = new MotoPosition(new int[]{ 93, 52,106, 90, 38, 90, 70});
+    MotoPosition Internation_Left_3 = new MotoPosition(new int[]{ 93, 69,114, 90, 29, 90, 70});
+    MotoPosition Internation_Left_4 = new MotoPosition(new int[]{ 93,92,114, 90, 31, 90, 70});
 
-    MotoPosition Internation_Left_5 = new MotoPosition(new int[]{140, 58, 112, 90, 33, 90, 70});
-    MotoPosition Internation_Left_6 = new MotoPosition(new int[]{145, 71, 113, 90, 36, 90, 70});
-    MotoPosition Internation_Left_7 = new MotoPosition(new int[]{150, 81, 117, 90, 30, 90, 70});
-    MotoPosition Internation_Left_8 = new MotoPosition(new int[]{158, 88, 120, 90, 25, 90, 70});
+    MotoPosition Internation_Left_5 = new MotoPosition(new int[]{145, 41, 101, 90, 43, 90, 70});
+    MotoPosition Internation_Left_6 = new MotoPosition(new int[]{150, 53, 106, 90, 36, 90, 70});
+    MotoPosition Internation_Left_7 = new MotoPosition(new int[]{155, 61, 111, 90, 29, 90, 70});
+    MotoPosition Internation_Left_8 = new MotoPosition(new int[]{162,71, 111, 90, 32, 90, 70});
 
-    MotoPosition Internation_Right_1 = new MotoPosition(new int[]{93, 32, 97, 90, 51, 90, 70});
-    MotoPosition Internation_Right_2 = new MotoPosition(new int[]{93, 53, 108, 90, 40, 90, 70});
-    MotoPosition Internation_Right_3 = new MotoPosition(new int[]{93, 68, 116, 90, 29, 90, 70});
-    MotoPosition Internation_Right_4 = new MotoPosition(new int[]{93, 87, 120, 91, 29, 90, 70});
+    MotoPosition Internation_Right_1 = new MotoPosition(new int[]{ 95, 32,96, 90, 47, 90, 70});
+    MotoPosition Internation_Right_2 = new MotoPosition(new int[]{ 95, 52,106, 90, 38, 90, 70});
+    MotoPosition Internation_Right_3 = new MotoPosition(new int[]{ 95, 70,113, 90, 29, 90, 70});
+    MotoPosition Internation_Right_4 = new MotoPosition(new int[]{ 96,93,113, 90, 34, 90, 70});
 
-    MotoPosition Internation_Right_5 = new MotoPosition(new int[]{44, 59, 112, 91, 36, 90, 70});
-    MotoPosition Internation_Right_6 = new MotoPosition(new int[]{39, 71, 115, 91, 34, 90, 70});
-    MotoPosition Internation_Right_7 = new MotoPosition(new int[]{33, 82, 117, 91, 35, 90, 70});
-    MotoPosition Internation_Right_8 = new MotoPosition(new int[]{25, 93, 119, 90, 25, 90, 70});
+    MotoPosition Internation_Right_5 = new MotoPosition(new int[]{ 42, 47,104, 90, 39, 90, 70});
+    MotoPosition Internation_Right_6 = new MotoPosition(new int[]{ 36, 58,111, 90, 30, 90, 70});
+    MotoPosition Internation_Right_7 = new MotoPosition(new int[]{ 31, 69,113, 90, 28, 90, 70});
+    MotoPosition Internation_Right_8 = new MotoPosition(new int[]{ 24, 79,113, 90, 31, 90, 70});
     //internation_chess_bowl
-    MotoPosition Internation_Bow_1 = new MotoPosition(new int[]{94, 38, 98, 90, 49, 90, 70});
-    MotoPosition Internation_Bow_2 = new MotoPosition(new int[]{94, 52, 110, 90, 32, 90, 70});
-    MotoPosition Internation_Bow_3 = new MotoPosition(new int[]{94, 65, 117, 90, 25, 90, 70});
-    MotoPosition Internation_Bow_4 = new MotoPosition(new int[]{95, 86, 118, 90, 35, 90, 70});
+    MotoPosition Internation_Bow_1 = new MotoPosition(new int[]{97, 42,  98, 90, 45, 90, 70});
+    MotoPosition Internation_Bow_2 = new MotoPosition(new int[]{98, 56, 109, 90, 33, 90, 70});
+    MotoPosition Internation_Bow_3 = new MotoPosition(new int[]{98, 74, 111, 90, 33, 90, 70});
+    MotoPosition Internation_Bow_4 = new MotoPosition(new int[]{100, 91, 113, 90, 31, 90, 70});
 
-    MotoPosition Internation_Bow_5 = new MotoPosition(new int[]{139, 57, 111, 90, 35, 90, 70});
-    MotoPosition Internation_Bow_6 = new MotoPosition(new int[]{143, 65, 115, 90, 30, 90, 70});
-    MotoPosition Internation_Bow_7 = new MotoPosition(new int[]{148, 76, 117, 90, 26, 90, 70});
-    MotoPosition Internation_Bow_8 = new MotoPosition(new int[]{154, 84, 119, 90, 24, 90, 70});
+    MotoPosition Internation_Bow_5 = new MotoPosition(new int[]{139, 66, 108, 90, 37, 90, 70});
+    MotoPosition Internation_Bow_6 = new MotoPosition(new int[]{143, 74, 112, 90, 32, 90, 70});
+    MotoPosition Internation_Bow_7 = new MotoPosition(new int[]{149, 86, 115, 90, 27, 90, 70});
+    MotoPosition Internation_Bow_8 = new MotoPosition(new int[]{154,96, 115, 90, 27, 90, 70});
     //
     //
     MotoPosition reset = new MotoPosition(new int[]{90, 90, 65, 90, 90, 90, 70});
+    MotoPosition clock = new MotoPosition(new int[]{91, 151, 73, 90, 90, 90, 70});
 
 
     /**
@@ -265,14 +266,17 @@ public class MoveSystem {
                                     case "resetallsystem":
                                         chessStep = ChessStepSetting.RESET_STEP;
                                         break;
-                                    case "start":
+                                    case "initsystem":
                                         chessStep = ChessStepSetting.INIT_STEP;
+                                        break;
+                                    case "start":
+                                        chessStep = ChessStepSetting.PLAY_STEP;
                                         break;
                                     case "chesscode":
                                         chessStep = ChessStepSetting.RESETCHESS_STEP;
                                         break;
-                                    case "firstchess":
-                                    case "secondchess":
+                                    case "whiteplay":
+                                    case "blackplay":
                                         chessStep = ChessStepSetting.PLAY_STEP;
                                         break;
                                 }
@@ -356,7 +360,7 @@ public class MoveSystem {
                     connectBluetooth();
                     sleep(2000);
                     if(isConnect()){
-                        mqtt.pubMsg(MoveSystemSetting.TAG_RECEIVER_FROM_CHESS_BELL,"start");
+                        mqtt.pubMsg(MoveSystemSetting.TAG_RECEIVER_FROM_CHESS_BELL,"initsystem");
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -778,6 +782,38 @@ public class MoveSystem {
         MoveData moveData2 = new MoveData();
         moveData2.setConveyerBandData("AALBB");
         moveSystemSend.addMoveData(moveData2);
+        return true;
+    }
+
+    /**
+     * 敲击棋钟
+     * @return 返回初始化结果
+     * @State Doing
+     * @Version 0.2
+     * @User MichaelJiang
+     */
+    public boolean knockClock() {
+        //回复初始位置
+        armState = new MoveData();
+        MoveData resetData = new MoveData();
+        resetData.setTransformResult(arm7Bot.toStandMotoByte(reset));
+        moveSystemSend.addMoveData(resetData);
+
+        //knockClock
+        MoveData moveData = new MoveData();
+        MotoPosition clockPosition = readArm7BotData(clock, false, this.isCatch,false);
+        TransformResult stepFourthCommad = arm7Bot.toStandMotoByte(clockPosition);
+        moveData.setTransformResult(stepFourthCommad);
+        Chess temp = new Chess();
+        temp.setPosition(70.375);
+        moveData.setConveyerBandData(contrastConveyerBandPosition(temp));
+        moveSystemSend.addMoveData(moveData);
+
+        //回复初始化
+        armState = new MoveData();
+        resetData = new MoveData();
+        resetData.setTransformResult(arm7Bot.toStandMotoByte(reset));
+        moveSystemSend.addMoveData(resetData);
         return true;
     }
 

@@ -1,7 +1,6 @@
 package org.ubilabs.ubichess.control;
 
 
-import android.nfc.Tag;
 import android.util.Log;
 
 import org.json.JSONException;
